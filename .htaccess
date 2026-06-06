@@ -1,0 +1,11 @@
+# Pretty publication URLs
+# /publications/<slug> -> /publication.php?slug=<slug>
+
+# /publications/<volume>/<issue>/<slug> -> /publication.php?volume=<volume>&issue=<issue>&slug=<slug>
+
+RewriteEngine On
+
+# Only apply if mod_rewrite is enabled.
+RewriteRule ^publications/([0-9]+)/([0-9]{1,2})/([a-z0-9-]+)/?$ publication.php?volume=$1&issue=$2&slug=$3 [L,QSA]
+RewriteRule ^publications/([a-z0-9-]+)/?$ publication.php?slug=$1 [L,QSA]
+RewriteRule ^sitemap\.xml$ sitemap-dynamic.php [L]

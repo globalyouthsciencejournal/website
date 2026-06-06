@@ -1,0 +1,45 @@
+User-agent: *
+Disallow: /admin-
+Disallow: /test
+Disallow: /update_
+Disallow: /schema-check.php
+Disallow: /oai.php?*
+Disallow: /account.php
+Disallow: /login.php
+Disallow: /logout.php
+Disallow: /signup.php
+Disallow: /edit-submission.php
+Disallow: /submit.php
+Disallow: /includes/
+Disallow: /data/
+Disallow: /sql/
+Disallow: /scripts/
+Disallow: /php/
+Allow: /
+
+Sitemap: /sitemap.xml
+
+# Enhanced for scholarly indexing and Google Scholar
+User-agent: Googlebot
+Disallow: /admin-
+Disallow: /test
+Disallow: /account.php
+Disallow: /login.php
+Allow: /
+
+User-agent: Googlebot-Scholar
+Disallow: /admin-
+Disallow: /test
+Disallow: /account.php
+Disallow: /login.php
+Allow: /
+
+User-agent: Googlebot-News
+Disallow: /admin-
+Allow: /
+
+User-agent: Googlebot-Image
+Disallow: /admin-
+Allow: /
+
+# End of file

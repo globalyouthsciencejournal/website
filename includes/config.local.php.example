@@ -1,0 +1,22 @@
+<?php
+declare(strict_types=1);
+
+// Local (non-committed) config overrides.
+//
+// Copy this file to `config.local.php` and fill in the real credentials.
+// This is useful when your host doesn't support custom environment variables.
+
+return [
+    'db' => [
+        // mysql (default) or sqlite (handy for local dev)
+        // 'driver' => 'sqlite',
+        // 'sqlite_path' => __DIR__ . '/../data/app.sqlite',
+
+        'host' => 'sql104.infinityfree.com',
+        'port' => 3306,
+        'name' => 'if0_41709662_ngl',
+        'user' => 'if0_41709662',
+        'pass' => 'YOUR_DATABASE_PASSWORD_HERE',
+        'charset' => 'utf8mb4',
+    ],
+];

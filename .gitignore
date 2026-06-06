@@ -1,0 +1,12 @@
+# Local secrets (do not commit)
+includes/config.local.php
+
+# User/admin uploaded files (keep out of git)
+/uploads/*
+!/uploads/.gitkeep
+!/uploads/submissions/.gitkeep
+
+# Local SQLite database (optional dev mode)
+/data/*.sqlite
+/data/*.db
+!/data/.gitkeep
