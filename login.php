@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/includes/bootstrap.php';
+require_once __DIR__ . '/includes/mailer.php';
 
 if (auth_is_logged_in()) {
     $user = auth_current_user();
@@ -112,6 +113,18 @@ $username = trim((string) ($_POST['username'] ?? ''));
         
                         $userId = (int) $pdo->lastInsertId();
                         auth_login_user($userId);
+
+                        // Send Welcome Email
+                        $subject = "Welcome to Global Youth Science Journal!";
+                        $body = "
+                        <p>Dear {$name},</p>
+                        <p>Welcome to the Global Youth Science Journal!</p>
+                        <p>We are thrilled to have you join our community. Your account has been successfully created.</p>
+                        <p>You can now log in and submit your research papers or manage your account.</p>
+                        <p>Best Regards,<br>The GYSJ Team</p>
+                        ";
+                        send_email($email, $subject, $body, $name);
+
                         redirect('user-dashboard.php');
                 }
                     }
@@ -854,7 +867,7 @@ $redirectValue = safe_redirect_target(is_string($redirectParam) ? $redirectParam
               <input type="password" name="password" id="pw-author" placeholder="Enter your password" required />
               <button class="eye-btn" type="button" onclick="togglePw('pw-author', this)" aria-label="Show password"><i class="fa fa-eye"></i></button>
             </div>
-            <div class="forgot"><a href="#">Forgot password?</a></div>
+            <div class="forgot"><a href="forgot-password.php">Forgot password?</a></div>
           </div>
           <button type="submit" class="btn-primary btn-author" name="login_mode" value="author">Sign in as Author</button>
         </form>
@@ -885,7 +898,7 @@ $redirectValue = safe_redirect_target(is_string($redirectParam) ? $redirectParam
               <input type="password" name="password" id="pw-admin" placeholder="Enter your password" required />
               <button class="eye-btn" type="button" onclick="togglePw('pw-admin', this)" aria-label="Show password"><i class="fa fa-eye"></i></button>
             </div>
-            <div class="forgot"><a href="#">Forgot password?</a></div>
+            <div class="forgot"><a href="forgot-password.php">Forgot password?</a></div>
           </div>
           <button type="submit" class="btn-primary btn-admin" name="login_mode" value="admin">Sign in as Editor</button>
         </form>

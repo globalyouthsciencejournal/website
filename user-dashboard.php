@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/includes/bootstrap.php';
+require_once __DIR__ . '/includes/mailer.php';
 
 auth_require_login();
 $user = auth_current_user();
@@ -925,6 +926,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $pdo instanceof PDO) {
                   }
                 }
 
+                $subject = "Submission Received - " . $title;
+                $body = "
+                <p>Dear " . htmlspecialchars($user['name'] ?? 'Author') . ",</p>
+                <p>Thank you for submitting your manuscript <strong>" . htmlspecialchars($title) . "</strong> to the Global Youth Science Journal.</p>
+                <p>Your submission has been received and is currently under review by our editorial team.</p>
+                <p>You can track the status of your submission in your dashboard.</p>
+                <p>Best Regards,<br>The GYSJ Team</p>
+                ";
+                send_email($user['email'], $subject, $body, $user['name'] ?? '');
+
                 $success = 'Submission uploaded successfully.';
               } catch (Throwable $e) {
                 $error = 'Could not submit your paper. Please try again. Error: ' . $e->getMessage();
@@ -1037,6 +1048,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $pdo instanceof PDO) {
                                 $vf['size']
                               ]);
                             }
+
+                            $subject = "Revision Received - " . htmlspecialchars($row['title']);
+                            $body = "
+                            <p>Dear " . htmlspecialchars($user['name'] ?? 'Author') . ",</p>
+                            <p>We have successfully received the revised version of your manuscript <strong>" . htmlspecialchars($row['title']) . "</strong>.</p>
+                            <p>Our editorial team will review the new version shortly.</p>
+                            <p>Best Regards,<br>The GYSJ Team</p>
+                            ";
+                            send_email($user['email'], $subject, $body, $user['name'] ?? '');
 
                             $success = 'Revision uploaded successfully.';
                         }

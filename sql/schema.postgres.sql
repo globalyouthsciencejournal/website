@@ -29,6 +29,8 @@ CREATE TABLE IF NOT EXISTS users (
   reviewer_cv_size INT NULL,
   reviewer_supporting_documents_json TEXT NULL,
   reviewer_declaration_confirmed BOOLEAN NULL DEFAULT false,
+  reset_token VARCHAR(255) NULL,
+  reset_expires TIMESTAMP NULL,
   password_hash VARCHAR(255) NOT NULL,
   role VARCHAR(50) NOT NULL DEFAULT 'user',
   assigned_journals_json TEXT NULL,
