@@ -145,25 +145,13 @@
 
                 <div class="collapse navbar-collapse w-100 mt-3 gysj-nav-links" id="navbarSupportedContent">
                     <ul class="navbar-nav mx-auto">
-                        <li class="nav-item active">
-                            <a class="nav-link" href="index.php">Home <span class="sr-only">(current)</span></a>
+                        <li class="nav-item <?php echo basename($_SERVER['PHP_SELF']) == 'index.php' ? 'active' : ''; ?>">
+                            <a class="nav-link" href="index.php">Home</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="publication.php">Publication</a>
+                        <li class="nav-item <?php echo basename($_SERVER['PHP_SELF']) == 'publication.php' ? 'active' : ''; ?>">
+                            <a class="nav-link" href="publication.php">Publications</a>
                         </li>
-                        <li class="nav-item ">
-                            <a class="nav-link" href="editorial-board.php">Editorial Board</a>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="dropdownMenuButton2" data-toggle="dropdown"
-                                aria-haspopup="true" aria-expanded="false">About Us</a>
-                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton2">
-                                <a class="dropdown-item" href="our-founders.php">Our Founders</a>
-                                <a class="dropdown-item" href="our-mission.php">Our Mission</a>
-                                <a class="dropdown-item" href="our-funding.php">Our Funding</a>
-                            </div>
-                        </li>
-                        <li class="nav-item dropdown">
+                        <li class="nav-item dropdown <?php echo in_array(basename($_SERVER['PHP_SELF']), ['user-dashboard.php', 'call-for-paper.php', 'authorguidelines.php', 'copyright.php']) ? 'active' : ''; ?>">
                             <a class="nav-link dropdown-toggle" href="#" id="dropdownMenuButton3" data-toggle="dropdown"
                                 aria-haspopup="true" aria-expanded="false">Paper Submissions</a>
                             <div class="dropdown-menu" aria-labelledby="dropdownMenuButton3">
@@ -173,32 +161,48 @@
                                 <a class="dropdown-item" href="copyright.php">Copyright</a>
                             </div>
                         </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="dropdownSupport" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Support GYSJ</a>
+                        <li class="nav-item dropdown <?php echo in_array(basename($_SERVER['PHP_SELF']), ['our-founders.php', 'our-mission.php', 'our-funding.php']) ? 'active' : ''; ?>">
+                            <a class="nav-link dropdown-toggle" href="#" id="dropdownMenuButton2" data-toggle="dropdown"
+                                aria-haspopup="true" aria-expanded="false">About Us</a>
+                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton2">
+                                <a class="dropdown-item" href="our-founders.php">Our Founders</a>
+                                <a class="dropdown-item" href="our-mission.php">Our Mission</a>
+                                <a class="dropdown-item" href="our-funding.php">Our Funding</a>
+                            </div>
+                        </li>
+                        <li class="nav-item dropdown <?php echo in_array(basename($_SERVER['PHP_SELF']), ['editorial-board.php', 'editorial-members.php']) ? 'active' : ''; ?>">
+                            <a class="nav-link dropdown-toggle" href="#" id="dropdownEditorialBoard" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Editorial Board</a>
+                            <div class="dropdown-menu" aria-labelledby="dropdownEditorialBoard">
+                                <a class="dropdown-item" href="editorial-board.php">About the Board</a>
+                                <a class="dropdown-item" href="editorial-members.php">Members</a>
+                            </div>
+                        </li>
+                        <li class="nav-item dropdown <?php echo in_array(basename($_SERVER['PHP_SELF']), ['contribute.php', 'partners.php']) ? 'active' : ''; ?>">
+                            <a class="nav-link dropdown-toggle" href="#" id="dropdownSupport" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Support Us</a>
                             <div class="dropdown-menu" aria-labelledby="dropdownSupport">
                                 <a class="dropdown-item" href="contribute.php">Contribute</a>
                                 <a class="dropdown-item" href="partners.php">Partners</a>
                             </div>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="contact.php">Contact Us</a>
+                        <li class="nav-item <?php echo basename($_SERVER['PHP_SELF']) == 'contact.php' ? 'active' : ''; ?>">
+                            <a class="nav-link" href="contact.php">Contact</a>
                         </li>
 
                         <?php if (auth_is_logged_in()): $navUser = auth_current_user(); ?>
                         <li class="nav-item dropdown">
-                          <a class="nav-link dropdown-toggle" href="#" id="accountMenu" data-toggle="dropdown"
-                            aria-haspopup="true" aria-expanded="false"><?php echo e(($navUser['name'] ?? '') !== '' ? $navUser['name'] : ($navUser['email'] ?? 'Account')); ?></a>
-                          <div class="dropdown-menu" aria-labelledby="accountMenu">
-                            <a class="dropdown-item" href="<?php echo e((($navUser['role'] ?? '') === 'admin') ? 'admin-dashboard.php' : 'user-dashboard.php'); ?>">Dashboard</a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="account.php">Account Settings</a>
-                            <a class="dropdown-item" href="logout.php">Log Out</a>
-                          </div>
+                            <a class="nav-link dropdown-toggle" href="#" id="accountMenu" data-toggle="dropdown"
+                                aria-haspopup="true" aria-expanded="false"><?php echo e(($navUser['name'] ?? '') !== '' ? $navUser['name'] : ($navUser['email'] ?? 'Account')); ?></a>
+                            <div class="dropdown-menu" aria-labelledby="accountMenu">
+                                <a class="dropdown-item" href="<?php echo e((($navUser['role'] ?? '') === 'admin') ? 'admin-dashboard.php' : 'user-dashboard.php'); ?>">Dashboard</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="account.php">Account Settings</a>
+                                <a class="dropdown-item" href="logout.php">Log Out</a>
+                            </div>
                         </li>
                         <?php else: ?>
                         <li class="nav-item">
-                          <a class="nav-link btn btn-primary btn-sm text-white px-3" href="login.php"
-                            style="margin-top:4px; margin-left:8px;">Login / Sign Up</a>
+                            <a class="nav-link btn btn-primary btn-sm text-white px-3" href="login.php"
+                                style="margin-top:4px; margin-left:8px;">Login / Sign Up</a>
                         </li>
                         <?php endif; ?>
                     </ul>
@@ -207,36 +211,124 @@
         </div>
     </div>
 
+  <style>
+    .contact-section {
+      padding: 80px 0;
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      font-family: 'Poppins', sans-serif;
+    }
+    .contact-wrapper {
+      background: #ffffff;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
+      overflow: hidden;
+      display: flex;
+      flex-wrap: wrap;
+    }
+    .contact-info {
+      background: #e9ecef;
+      padding: 0;
+      flex: 1 1 40%;
+      min-width: 300px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .contact-form-area {
+      padding: 50px;
+      flex: 1 1 60%;
+      min-width: 300px;
+      background: #ffffff;
+    }
+    .contact-form-area h3 {
+      font-weight: 700;
+      margin-bottom: 30px;
+      color: #333;
+      font-size: 2rem;
+    }
+    .contact-form .form-group {
+      margin-bottom: 25px;
+    }
+    .contact-form label {
+      font-weight: 600;
+      color: #555;
+      margin-bottom: 8px;
+      display: block;
+      font-size: 0.95rem;
+    }
+    .contact-form .form-control {
+      border: 1px solid #ddd;
+      padding: 15px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      background: #fafafa;
+    }
+    .contact-form .form-control:focus {
+      border-color: #0056b3;
+      box-shadow: 0 0 0 4px rgba(0, 86, 179, 0.1);
+      background: #fff;
+      outline: none;
+    }
+    .contact-form .btn-submit {
+      background: linear-gradient(135deg, #0056b3 0%, #004494 100%);
+      border: none;
+      padding: 15px 30px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #fff;
+      transition: all 0.3s ease;
+      box-shadow: 0 5px 15px rgba(0, 86, 179, 0.3);
+      cursor: pointer;
+      width: 100%;
+      margin-top: 10px;
+    }
+    .contact-form .btn-submit:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(0, 86, 179, 0.4);
+    }
+    @media (max-width: 768px) {
+      .contact-info, .contact-form-area {
+        padding: 30px;
+      }
+      .contact-section {
+        padding: 40px 0;
+      }
+    }
+  </style>
 
-
-
-
-  <div class="container-fluid pb-4 pt-4 paddding">
-    <div class="container paddding">
-      <div class="row mx-0">
-        <div class="col-md-8 animate-box" data-animate-effect="fadeInLeft">
-          <h2>Contact Us</h2>
-          <p style="font-size:1.1em;">For the fastest response, email us directly at <a
-              href="mailto:globalyouthsciencejournal@gmail.com">globalyouthsciencejournal@gmail.com</a>.</p>
-          <form action="https://formspree.io/f/mwpqnpro" method="POST" style="max-width:500px;margin-top:30px;">
+  <div class="contact-section">
+    <div class="container">
+      <div class="contact-wrapper animate-box" data-animate-effect="fadeInUp">
+        <div class="contact-info">
+          <iframe src="https://maps.google.com/maps?q=World&t=&z=2&ie=UTF8&iwloc=&output=embed" width="100%" height="100%" style="border:0; min-height: 350px;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        </div>
+        
+        <div class="contact-form-area">
+          <h3>Send us a Message</h3>
+          <form action="https://formspree.io/f/mwpqnpro" method="POST" class="contact-form">
             <div class="form-group">
-              <label for="name">Name</label>
-              <input type="text" class="form-control" id="name" name="name" required>
+              <label for="name">Your Name</label>
+              <input type="text" class="form-control" id="name" name="name" placeholder="e.g. Jane Doe" required>
             </div>
             <div class="form-group">
-              <label for="email">Email</label>
-              <input type="email" class="form-control" id="email" name="email" required>
+              <label for="email">Email Address</label>
+              <input type="email" class="form-control" id="email" name="email" placeholder="jane@example.com" required>
             </div>
             <div class="form-group">
               <label for="message">Message</label>
-              <textarea class="form-control" id="message" name="message" rows="5" required></textarea>
+              <textarea class="form-control" id="message" name="message" rows="5" placeholder="How can we help you?" required></textarea>
             </div>
-            <button type="submit" class="btn btn-primary">Send Message</button>
+            <button type="submit" class="btn-submit">
+              <i class="fa fa-paper-plane"></i> &nbsp;Send Message
+            </button>
           </form>
         </div>
       </div>
     </div>
   </div>
+
+
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       document.querySelectorAll('img').forEach(function (img) {
@@ -264,19 +356,6 @@
 </script>
 <script src="js/overlay-widget.js"></script>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 <div class="gototop js-top">
   <a href="#" class="js-gotop"><i class="fa fa-arrow-up"></i></a>
 </div>
@@ -288,7 +367,7 @@
           <img src="images/iysjournal.png" class="footer_logo mr-2" alt="Global Youth Science Journal logo">
           <span class="footer_main_title">Global Youth Science Journal</span>
         </a>
-        <p class="footer_sub_about mt-3 mb-2">Peer-reviewed, open-access research for young scientists (ages 12 to 20).</p>
+        <p class="footer_sub_about mt-3 mb-2">Peer-reviewed, open-access research for young scientists.</p>
       </div>
       <div class="col-6 col-lg-2 mb-4">
         <div class="footer_main_title mb-2">Explore</div>

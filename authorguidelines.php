@@ -114,7 +114,7 @@
       "name": "Who can be listed as an author?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Authors must be aged 12 to 20 and have contributed significantly to the research."
+        "text": "Authors must have contributed significantly to the research."
       }
     }
   ]
@@ -123,51 +123,27 @@
   <!-- End SEO additions -->
 
   <style>
-    /* Author guidelines readability (scoped) */
-    .gysj-guidelines {
-      max-width: 920px;
-      margin: 0 auto;
-      text-align: left;
+    .guideline-card {
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      border: 2px solid #333;
+      border-radius: 0;
+      background-color: #f5f5f5;
     }
-
-    .gysj-guidelines h2,
-    .gysj-guidelines h3,
-    .gysj-guidelines h4 {
-      max-width: 800px;
-      margin-left: auto;
-      margin-right: auto;
+    .guideline-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.3) !important;
+      text-decoration: none;
     }
-
-    .gysj-guidelines h2 {
-      margin-bottom: 1rem;
+    .guideline-card .card-body {
+      padding: 1.5rem;
     }
-
-    .gysj-guidelines h3 {
-      margin-top: 2rem;
+    .guideline-card h5 {
+      font-size: 1.15rem;
+      font-weight: 600;
       margin-bottom: 0.75rem;
     }
-
-    .gysj-guidelines h4 {
-      margin-top: 1.5rem;
-      margin-bottom: 0.5rem;
-    }
-
-    .gysj-guidelines p,
-    .gysj-guidelines li {
-      line-height: 1.75;
-    }
-
-    .gysj-guidelines p,
-    .gysj-guidelines ol,
-    .gysj-guidelines ul,
-    .gysj-guidelines hr {
-      margin-left: auto;
-      margin-right: auto;
-    }
-
-    .gysj-guidelines hr {
-      margin-top: 2rem;
-      margin-bottom: 2rem;
+    .gysj-guidelines-main {
+      padding: 2rem 0;
     }
   </style>
     <script src="/js/main.js" defer></script>
@@ -192,25 +168,13 @@
 
                 <div class="collapse navbar-collapse w-100 mt-3 gysj-nav-links" id="navbarSupportedContent">
                     <ul class="navbar-nav mx-auto">
-                        <li class="nav-item active">
-                            <a class="nav-link" href="index.php">Home <span class="sr-only">(current)</span></a>
+                        <li class="nav-item <?php echo basename($_SERVER['PHP_SELF']) == 'index.php' ? 'active' : ''; ?>">
+                            <a class="nav-link" href="index.php">Home</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="publication.php">Publication</a>
+                        <li class="nav-item <?php echo basename($_SERVER['PHP_SELF']) == 'publication.php' ? 'active' : ''; ?>">
+                            <a class="nav-link" href="publication.php">Publications</a>
                         </li>
-                        <li class="nav-item ">
-                            <a class="nav-link" href="editorial-board.php">Editorial Board</a>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="dropdownMenuButton2" data-toggle="dropdown"
-                                aria-haspopup="true" aria-expanded="false">About Us</a>
-                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton2">
-                                <a class="dropdown-item" href="our-founders.php">Our Founders</a>
-                                <a class="dropdown-item" href="our-mission.php">Our Mission</a>
-                                <a class="dropdown-item" href="our-funding.php">Our Funding</a>
-                            </div>
-                        </li>
-                        <li class="nav-item dropdown">
+                        <li class="nav-item dropdown <?php echo in_array(basename($_SERVER['PHP_SELF']), ['user-dashboard.php', 'call-for-paper.php', 'authorguidelines.php', 'copyright.php']) ? 'active' : ''; ?>">
                             <a class="nav-link dropdown-toggle" href="#" id="dropdownMenuButton3" data-toggle="dropdown"
                                 aria-haspopup="true" aria-expanded="false">Paper Submissions</a>
                             <div class="dropdown-menu" aria-labelledby="dropdownMenuButton3">
@@ -220,32 +184,48 @@
                                 <a class="dropdown-item" href="copyright.php">Copyright</a>
                             </div>
                         </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="dropdownSupport" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Support GYSJ</a>
+                        <li class="nav-item dropdown <?php echo in_array(basename($_SERVER['PHP_SELF']), ['our-founders.php', 'our-mission.php', 'our-funding.php']) ? 'active' : ''; ?>">
+                            <a class="nav-link dropdown-toggle" href="#" id="dropdownMenuButton2" data-toggle="dropdown"
+                                aria-haspopup="true" aria-expanded="false">About Us</a>
+                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton2">
+                                <a class="dropdown-item" href="our-founders.php">Our Founders</a>
+                                <a class="dropdown-item" href="our-mission.php">Our Mission</a>
+                                <a class="dropdown-item" href="our-funding.php">Our Funding</a>
+                            </div>
+                        </li>
+                        <li class="nav-item dropdown <?php echo in_array(basename($_SERVER['PHP_SELF']), ['editorial-board.php', 'editorial-members.php']) ? 'active' : ''; ?>">
+                            <a class="nav-link dropdown-toggle" href="#" id="dropdownEditorialBoard" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Editorial Board</a>
+                            <div class="dropdown-menu" aria-labelledby="dropdownEditorialBoard">
+                                <a class="dropdown-item" href="editorial-board.php">About the Board</a>
+                                <a class="dropdown-item" href="editorial-members.php">Members</a>
+                            </div>
+                        </li>
+                        <li class="nav-item dropdown <?php echo in_array(basename($_SERVER['PHP_SELF']), ['contribute.php', 'partners.php']) ? 'active' : ''; ?>">
+                            <a class="nav-link dropdown-toggle" href="#" id="dropdownSupport" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Support Us</a>
                             <div class="dropdown-menu" aria-labelledby="dropdownSupport">
                                 <a class="dropdown-item" href="contribute.php">Contribute</a>
                                 <a class="dropdown-item" href="partners.php">Partners</a>
                             </div>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="contact.php">Contact Us</a>
+                        <li class="nav-item <?php echo basename($_SERVER['PHP_SELF']) == 'contact.php' ? 'active' : ''; ?>">
+                            <a class="nav-link" href="contact.php">Contact</a>
                         </li>
 
                         <?php if (auth_is_logged_in()): $navUser = auth_current_user(); ?>
                         <li class="nav-item dropdown">
-                          <a class="nav-link dropdown-toggle" href="#" id="accountMenu" data-toggle="dropdown"
-                            aria-haspopup="true" aria-expanded="false"><?php echo e(($navUser['name'] ?? '') !== '' ? $navUser['name'] : ($navUser['email'] ?? 'Account')); ?></a>
-                          <div class="dropdown-menu" aria-labelledby="accountMenu">
-                            <a class="dropdown-item" href="<?php echo e((($navUser['role'] ?? '') === 'admin') ? 'admin-dashboard.php' : 'user-dashboard.php'); ?>">Dashboard</a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="account.php">Account Settings</a>
-                            <a class="dropdown-item" href="logout.php">Log Out</a>
-                          </div>
+                            <a class="nav-link dropdown-toggle" href="#" id="accountMenu" data-toggle="dropdown"
+                                aria-haspopup="true" aria-expanded="false"><?php echo e(($navUser['name'] ?? '') !== '' ? $navUser['name'] : ($navUser['email'] ?? 'Account')); ?></a>
+                            <div class="dropdown-menu" aria-labelledby="accountMenu">
+                                <a class="dropdown-item" href="<?php echo e((($navUser['role'] ?? '') === 'admin') ? 'admin-dashboard.php' : 'user-dashboard.php'); ?>">Dashboard</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="account.php">Account Settings</a>
+                                <a class="dropdown-item" href="logout.php">Log Out</a>
+                            </div>
                         </li>
                         <?php else: ?>
                         <li class="nav-item">
-                          <a class="nav-link btn btn-primary btn-sm text-white px-3" href="login.php"
-                            style="margin-top:4px; margin-left:8px;">Login / Sign Up</a>
+                            <a class="nav-link btn btn-primary btn-sm text-white px-3" href="login.php"
+                                style="margin-top:4px; margin-left:8px;">Login / Sign Up</a>
                         </li>
                         <?php endif; ?>
                     </ul>
@@ -263,220 +243,121 @@
     <div class="container paddding">
       <div class="row mx-0">
         <div class="col-md-10 mx-auto animate-box" data-animate-effect="fadeInLeft">
-          <div class="gysj-guidelines">
-            <br>
-          <h2>Manuscript Format &amp; Content</h2>
+          <div class="gysj-guidelines-main">
+            <div class="text-center mb-5">
+              <h2 class="font-weight-bold" style="color: #333;">Author Guidelines</h2>
+              <p class="text-muted mb-4">Please review our guidelines before preparing and submitting your manuscript.</p>
+              <a class="btn btn-primary btn-lg" href="../GYS_Manuscript_Template.docx" download style="border-radius: 0; padding: 10px 30px; font-weight: 600; box-shadow: 0 8px 20px rgba(0,0,0,0.25);">
+                <i class="fa fa-download mr-2"></i> Download Manuscript Template
+              </a>
+            </div>
 
-          <h4>Formatting Guidelines for Initial Submission</h4>
-          <p style="font-size:1.08em;max-width:800px;">
-            As of April 2026, all new submissions to Global Youth Science Journal must be submitted on our manuscript
-            template. This template is designed to help our student authors address commonly seen mistakes in
-            manuscripts before they have even submitted.
-          </p>
+            <div class="row mb-5">
+              <div class="col-12 mb-4">
+                <h3 style="border-bottom: 2px solid #eee; padding-bottom: 10px;"><i class="fa fa-info-circle text-primary mr-2"></i> Author Eligibility and Information</h3>
+              </div>
+              <div class="col-md-6 mb-4">
+                <a href="guideline.php?topic=topics-we-accept" class="card h-100 text-decoration-none shadow-sm guideline-card">
+                  <div class="card-body">
+                    <h5 class="card-title text-dark"><i class="fa fa-list-ul text-primary mr-2"></i> Topics We Accept</h5>
+                    <p class="card-text text-muted">View the list of accepted STEM journals and subjects.</p>
+                  </div>
+                </a>
+              </div>
+              <div class="col-md-6 mb-4">
+                <a href="guideline.php?topic=vertebrate-animal-and-human-subject-research" class="card h-100 text-decoration-none shadow-sm guideline-card">
+                  <div class="card-body">
+                    <h5 class="card-title text-dark"><i class="fa fa-paw text-primary mr-2"></i> Animal &amp; Human Research</h5>
+                    <p class="card-text text-muted">Ethical requirements for studies involving vertebrate animals or human subjects.</p>
+                  </div>
+                </a>
+              </div>
+              <div class="col-md-6 mb-4">
+                <a href="guideline.php?topic=academic-honesty-and-ai" class="card h-100 text-decoration-none shadow-sm guideline-card">
+                  <div class="card-body">
+                    <h5 class="card-title text-dark"><i class="fa fa-balance-scale text-primary mr-2"></i> Academic Honesty and AI</h5>
+                    <p class="card-text text-muted">Our policies on academic integrity and the use of artificial intelligence.</p>
+                  </div>
+                </a>
+              </div>
+              <div class="col-md-6 mb-4">
+                <a href="guideline.php?topic=avoiding-plagiarism" class="card h-100 text-decoration-none shadow-sm guideline-card">
+                  <div class="card-body">
+                    <h5 class="card-title text-dark"><i class="fa fa-copy text-primary mr-2"></i> Avoiding Plagiarism</h5>
+                    <p class="card-text text-muted">Guidelines on proper attribution and originality.</p>
+                  </div>
+                </a>
+              </div>
+            </div>
 
-          <div style="max-width:800px;margin:1.25rem auto 0;">
-            <a class="btn btn-primary" href="../GYS_Manuscript_Template.docx" download>
-              Download Manuscript Template
-            </a>
-          </div>
-          <hr style="max-width:800px;" />
+            <div class="row mb-5">
+              <div class="col-12 mb-4">
+                <h3 style="border-bottom: 2px solid #eee; padding-bottom: 10px;"><i class="fa fa-pencil text-primary mr-2"></i> Writing Your Manuscript</h3>
+              </div>
+              <div class="col-md-6 mb-4">
+                <a href="guideline.php?topic=manuscript-format-content" class="card h-100 text-decoration-none shadow-sm guideline-card">
+                  <div class="card-body">
+                    <h5 class="card-title text-dark"><i class="fa fa-file-text-o text-primary mr-2"></i> Manuscript Format &amp; Content</h5>
+                    <p class="card-text text-muted">Structure, length, and content requirements.</p>
+                  </div>
+                </a>
+              </div>
+              <div class="col-md-6 mb-4">
+                <a href="guideline.php?topic=figure-table-formatting" class="card h-100 text-decoration-none shadow-sm guideline-card">
+                  <div class="card-body">
+                    <h5 class="card-title text-dark"><i class="fa fa-bar-chart text-primary mr-2"></i> Figure &amp; Table Formatting</h5>
+                    <p class="card-text text-muted">Guidelines for embedding visual aids and captions.</p>
+                  </div>
+                </a>
+              </div>
+              <div class="col-md-6 mb-4">
+                <a href="guideline.php?topic=reference-formatting" class="card h-100 text-decoration-none shadow-sm guideline-card">
+                  <div class="card-body">
+                    <h5 class="card-title text-dark"><i class="fa fa-bookmark text-primary mr-2"></i> Reference Formatting</h5>
+                    <p class="card-text text-muted">How to properly format citations and references in Chicago style.</p>
+                  </div>
+                </a>
+              </div>
+              <div class="col-md-6 mb-4">
+                <a href="guideline.php?topic=common-mistakes" class="card h-100 text-decoration-none shadow-sm guideline-card">
+                  <div class="card-body">
+                    <h5 class="card-title text-dark"><i class="fa fa-exclamation-triangle text-primary mr-2"></i> Common Mistakes</h5>
+                    <p class="card-text text-muted">Frequent errors to avoid before submission.</p>
+                  </div>
+                </a>
+              </div>
+            </div>
 
-          <h3>Instructions for Authors</h3>
-          <p style="font-size:1.08em;max-width:800px;">
-            The Global Youth Science Journal (GYS Journal) provides a set of formatting and submission guidelines to
-            help ensure clarity, consistency, and a smooth review process. While we strongly encourage authors to follow
-            these guidelines, submissions that do not fully adhere to them will still be considered, and our editorial
-            team will assist in aligning manuscripts with journal standards where needed.
-          </p>
-          <p style="font-size:1.08em;max-width:800px;">
-            A manuscript template is available on pages 5â€“14. Authors are encouraged to use this template and refer to
-            the guidance, examples, and notes included throughout. That said, submissions prepared outside the template
-            are also welcome, and formatting adjustments can be made during the editorial process.
-          </p>
-          <p style="font-size:1.08em;max-width:800px;">
-            Authors may also find it helpful to review the online submission guide before beginning and prior to
-            submission, as it contains additional details beyond this document.
-          </p>
+            <div class="row mb-5">
+              <div class="col-12 mb-4">
+                <h3 style="border-bottom: 2px solid #eee; padding-bottom: 10px;"><i class="fa fa-check-square-o text-primary mr-2"></i> Submission and Review</h3>
+              </div>
+              <div class="col-md-4 mb-4">
+                <a href="guideline.php?topic=submission-checklists" class="card h-100 text-decoration-none shadow-sm guideline-card">
+                  <div class="card-body">
+                    <h5 class="card-title text-dark"><i class="fa fa-list text-primary mr-2"></i> Submission Checklists</h5>
+                    <p class="card-text text-muted">Final checklist before you hit submit.</p>
+                  </div>
+                </a>
+              </div>
+              <div class="col-md-4 mb-4">
+                <a href="guideline.php?topic=review-process" class="card h-100 text-decoration-none shadow-sm guideline-card">
+                  <div class="card-body">
+                    <h5 class="card-title text-dark"><i class="fa fa-refresh text-primary mr-2"></i> Review Process</h5>
+                    <p class="card-text text-muted">How the peer review and editorial process works.</p>
+                  </div>
+                </a>
+              </div>
+              <div class="col-md-4 mb-4">
+                <a href="guideline.php?topic=permissions-licensing" class="card h-100 text-decoration-none shadow-sm guideline-card">
+                  <div class="card-body">
+                    <h5 class="card-title text-dark"><i class="fa fa-copyright text-primary mr-2"></i> Permissions &amp; Licensing</h5>
+                    <p class="card-text text-muted">Copyright, open-access policies, and permissions.</p>
+                  </div>
+                </a>
+              </div>
+            </div>
 
-          <h4>Biographical Statement</h4>
-          <p style="font-size:1.08em;max-width:800px;">
-            Each submission should include a one- to two-sentence biographical statement written in the third person.
-            Authors may include their age, areas of interest, and any relevant institutional affiliations.
-          </p>
-
-          <h4>Language</h4>
-          <p style="font-size:1.08em;max-width:800px;">
-            Manuscripts are ideally written in British English. Submissions in other languages may be considered if
-            accompanied by a translation. Clear and concise writing is encouraged; revisions may be suggested where
-            necessary.
-          </p>
-
-          <h4>Manuscript Structure</h4>
-          <p style="font-size:1.08em;max-width:800px;">We recommend organizing manuscripts using the following structure:</p>
-          <ol style="font-size:1.08em;max-width:800px;">
-            <li>Summary</li>
-            <li>Introduction</li>
-            <li>Results</li>
-            <li>Discussion</li>
-            <li>Materials &amp; Methods</li>
-            <li>Acknowledgments (if applicable)</li>
-            <li>References</li>
-            <li>Figures and Figure Titles/Captions</li>
-            <li>Tables with Titles/Captions</li>
-            <li>Appendix (if applicable)</li>
-          </ol>
-          <p style="font-size:1.08em;max-width:800px;">
-            While this structure is preferred, minor variations can be accommodated and refined during editing.
-          </p>
-          <p style="font-size:1.08em;max-width:800px;">
-            Authors are encouraged to write within the template where possible, though externally prepared manuscripts
-            will also be accepted and adjusted as needed.
-          </p>
-
-          <h4>Formatting</h4>
-          <p style="font-size:1.08em;max-width:800px;">
-            General formatting (Arial, 11pt, 1.5 spacing, standard margins, etc.) is recommended for consistency, but
-            not strictly required at submission. Line numbers are helpful for peer review and may be added later if
-            missing. Instructional text in the template can be removed prior to submission, though the editorial team
-            can also assist with cleanup if needed.
-          </p>
-
-          <h4>Length</h4>
-          <p style="font-size:1.08em;max-width:800px;">
-            The manuscript body (Introduction through Materials &amp; Methods) should ideally not exceed 10 pages. Slightly
-            longer submissions may still be accepted and adjusted during revision.
-          </p>
-
-          <h4>Figures and Tables</h4>
-          <p style="font-size:1.08em;max-width:800px;">
-            We recommend a maximum of 8 figures and tables combined. If this limit is exceeded, the editorial team may
-            suggest consolidation during revision.
-          </p>
-
-          <h4>Academic Integrity</h4>
-          <p style="font-size:1.08em;max-width:800px;">Authors are expected to uphold academic integrity standards.</p>
-          <ul style="font-size:1.08em;max-width:800px;">
-            <li><strong>Artificial Intelligence:</strong> AI tools should not be used to generate manuscript content.
-              However, they may be used to support understanding of literature. If any concerns arise, the editorial
-              team will work with authors to resolve them.</li>
-            <li><strong>Plagiarism:</strong> All external material should be properly paraphrased. Direct quotations are
-              not permitted. If issues are identified, authors will be asked to revise accordingly.</li>
-          </ul>
-
-          <h4>Common Considerations</h4>
-          <ul style="font-size:1.08em;max-width:800px;">
-            <li>Lists are generally discouraged in the main text.</li>
-            <li>Past tense and active voice are preferred, except where conventions differ (e.g., Materials &amp; Methods).</li>
-            <li>The submission does not need to replicate the final published layout.</li>
-          </ul>
-
-          <h4>Final Checks Before Submission</h4>
-          <p style="font-size:1.08em;max-width:800px;">
-            Authors should ensure all contributors have consented to publication and that figures/tables are original or
-            appropriately licensed. If anything is missing, the editorial team will follow up during the review process.
-          </p>
-
-          <h4>Contact</h4>
-          <p style="font-size:1.08em;max-width:800px;">
-            Questions may be sent to <a href="mailto:globalyouthsciencejournal@gmail.com">globalyouthsciencejournal@gmail.com</a>.
-            For queries about an existing submission, please include the manuscript title and number. When replying to
-            journal staff, using â€œReply Allâ€ helps ensure the full team stays informed.
-          </p>
-
-          <hr style="max-width:800px;" />
-
-          <h3>TITLE PAGE:</h3>
-          <p style="font-size:1.08em;max-width:800px;"><strong>OVERVIEW:</strong> Provide a 2- to 3-sentence overview of the manuscript. This text will be used as the article description on the journal website.</p>
-          <p style="font-size:1.08em;max-width:800px;"><strong>AUTHORS:</strong> Name (Affiliation, Role)</p>
-          <p style="font-size:1.08em;max-width:800px;"><strong>KEYWORDS:</strong> Provide 3â€“5 standalone keywords that characterise the study.</p>
-
-          <h4>ABSTRACT</h4>
-          <p style="font-size:1.08em;max-width:800px;">
-            The abstract is a concise summary of the manuscript that provides readers with a clear overview of the
-            study. It should briefly state the research problem or objective, outline the methodology used, highlight
-            the key results, and present the main conclusions or implications. The abstract should be self-contained,
-            meaning it can be understood independently of the full text, and should avoid citations, abbreviations, or
-            detailed explanations. Typically, it is written in a single paragraph and kept within the specified word
-            limit set by the journal.
-          </p>
-
-          <h4>INTRODUCTION</h4>
-          <p style="font-size:1.08em;max-width:800px;">
-            The introduction provides the background and context for the study, helping readers understand the
-            significance of the research. It should outline the broader field of study, summarize relevant existing
-            work, and identify gaps or limitations that the current research aims to address. The introduction also
-            clearly states the research problem, objectives, or hypotheses of the study. It should guide the reader
-            logically toward the purpose of the manuscript without including detailed results or conclusions.
-          </p>
-
-          <h4>MATERIALS AND METHODS</h4>
-          <p style="font-size:1.08em;max-width:800px;">
-            This section should provide sufficient methodological detail for an independent researcher to replicate the
-            work, without adopting a step-by-step procedural format. Subsections with <em>italicised headers</em> may be
-            used where multiple experiments are described. Materials should be integrated into the narrative rather
-            than listed separately. Unique reagents, equipment, and animal strains should be identified by manufacturer
-            and catalogue number; generic items require no such specification.
-          </p>
-          <p style="font-size:1.08em;max-width:800px;">
-            Self-generated code may be referenced via a GitHub link (cited as a reference) or included in an appendix.
-            Equations central to the methodology should follow the journal's equation formatting guidelines.
-          </p>
-
-          <h4>ACKNOWLEDGMENTS (Optional)</h4>
-          <p style="font-size:1.08em;max-width:800px;">
-            Authorship represents the highest form of recognition in scientific writing; individuals listed as authors
-            should therefore not appear in this section. Any contributor who supported the work but does not meet
-            authorship criteria may be acknowledged here. Funding sources should also be noted in this section.
-          </p>
-
-          <h4>REFERENCES</h4>
-          <p style="font-size:1.08em;max-width:800px;">
-            References must follow Chicago style. Citation tools such as Zotero support this format. Primary sources
-            should be prioritised; Wikipedia and informal web content should be avoided where possible.
-          </p>
-          <p style="font-size:1.08em;max-width:800px;">
-            Citations should appear as footnotes on the page where the source is first cited. A complete reference list
-            should also be included in this section. References with three or more authors should use the format â€œFirst
-            Author et al.â€ No hanging indentation should be applied. All references with an online source should
-            include the full URL or DOI beginning with â€œhttps://â€.
-          </p>
-          <p style="font-size:1.08em;max-width:800px;">Format examples:</p>
-          <ul style="font-size:1.08em;max-width:800px;">
-            <li>Journal article: Last Name, First Name. â€œArticle Title.â€ Journal Name X, no. X (Year): XXâ€“XX. https://doi.org/â€¦</li>
-            <li>Website: Last Name, First Name (if available). â€œPage Title.â€ Website Name. Accessed Day Month Year. https://â€¦</li>
-            <li>Book: Last Name, First Name. <em>Book Title</em>. Xth ed. City: Publisher, Year.</li>
-          </ul>
-
-          <h4>Figures and Figure Titles/Captions</h4>
-          <p style="font-size:1.08em;max-width:800px;">
-            Place figures in this section with a bold title and regular-weight caption positioned below the figure. A
-            complete caption includes: a bold title; a description of what is shown; a brief methodological note;
-            statistical tests and values where applicable; and the number of replicates. Within caption text, only the
-            first word, proper nouns, and acronyms should be capitalised.
-          </p>
-
-          <h4>Tables with Titles/Captions</h4>
-          <p style="font-size:1.08em;max-width:800px;">
-            Tables should appear above their title and caption. Captions must define any abbreviations used within the
-            table. In-table references should follow the format: Last name (Year), and the full citation must appear in
-            the References section.
-          </p>
-          <p style="font-size:1.08em;max-width:800px;">
-            Tables must be created as editable Word tables using Insert â†’ Table and should fit within a single page
-            where possible. Tables that cannot be made legible on one page will be moved to the Appendix.
-          </p>
-          <p style="font-size:1.08em;max-width:800px;">
-            A maximum of 8 combined figures and tables is permitted. Supplementary figures or tables should be included
-            in the Appendix only where essential to comprehension, accompanied by a statement justifying their
-            inclusion.
-          </p>
-
-          <h4>Appendix (If Applicable)</h4>
-          <p style="font-size:1.08em;max-width:800px;">
-            Appendices are considered on a case-by-case basis. Where an appendix is included, a brief statement
-            explaining why the material could not be incorporated into the main manuscript should accompany it. Code,
-            scripts, and GitHub links do not require a justification statement.
-          </p>
           </div>
         </div>
       </div>
@@ -489,19 +370,6 @@
 </script>
 <script src="js/overlay-widget.js"></script>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 <div class="gototop js-top">
   <a href="#" class="js-gotop"><i class="fa fa-arrow-up"></i></a>
 </div>
@@ -513,7 +381,7 @@
           <img src="images/iysjournal.png" class="footer_logo mr-2" alt="Global Youth Science Journal logo">
           <span class="footer_main_title">Global Youth Science Journal</span>
         </a>
-        <p class="footer_sub_about mt-3 mb-2">Peer-reviewed, open-access research for young scientists (ages 12 to 20).</p>
+        <p class="footer_sub_about mt-3 mb-2">Peer-reviewed, open-access research for young scientists.</p>
       </div>
       <div class="col-6 col-lg-2 mb-4">
         <div class="footer_main_title mb-2">Explore</div>
@@ -585,10 +453,6 @@
 <div style="display:none;">
   <span itemprop="citation">Global Youth Science Journal Editorial Board. (2026). Author Guidelines. Global Youth
     Science Journal. https://<?php echo $_SERVER["HTTP_HOST"]; ?>/authorguidelines.php</span>
-</div>
-</div>
-</div>
-</div>
 </div>
 </body>
 

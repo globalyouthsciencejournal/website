@@ -9,9 +9,9 @@
     <link rel="shortcut icon" type="image/jpg" href="images/iysjournal.png">
     <title>Home  Global Youth Science Journal | Peer-Reviewed Research for Young Scientists</title>
     <meta name="description"
-        content="Global Youth Science Journal: A global, peer-reviewed, open-access platform for young researchers (ages 12 to 20) to publish science, technology, and arts research.">
+        content="Global Youth Science Journal: A global, peer-reviewed, open-access platform for young researchers to publish science, technology, and arts research.">
     <meta name="keywords"
-        content="Journal, International, Peer-reviewed, free, fast, global, young, science, computer science, social science, arts, literature, age 12, ages 12 to 20, teenager, young scientists, research paper publishing, publication, publishing, research paper, submission, public, research">
+        content="Journal, International, Peer-reviewed, free, fast, global, young, science, computer science, social science, arts, literature, teenager, young scientists, research paper publishing, publication, publishing, research paper, submission, public, research">
     <link href="css/media_query.css" rel="stylesheet" type="text/css">
     <link href="css/style.css " rel="stylesheet" type="text/css">
     <link href="css/bootstrap.css" rel="stylesheet" type="text/css">
@@ -75,7 +75,7 @@
     <meta property="og:type" content="website">
     <meta property="og:title" content="Global Youth Science Journal | Peer-Reviewed Research for Young Scientists">
     <meta property="og:description"
-        content="A global, peer-reviewed, open-access platform for young researchers (ages 12 to 20) to publish science, technology, and arts research.">
+        content="A global, peer-reviewed, open-access platform for young researchers to publish science, technology, and arts research.">
     <meta property="og:url" content="https://<?php echo $_SERVER["HTTP_HOST"]; ?>/">
     <meta property="og:image" content="https://<?php echo $_SERVER["HTTP_HOST"]; ?>/images/logo.png">
     <meta name="twitter:card" content="summary_large_image">
@@ -134,7 +134,7 @@
       "name": "Who can submit to the Global Youth Science Journal?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Young researchers aged 12 to 20 from around the world are eligible to submit original research articles."
+        "text": "Young researchers from around the world are eligible to submit original research articles."
       }
     },
     {
@@ -182,25 +182,13 @@
 
                 <div class="collapse navbar-collapse w-100 mt-3 gysj-nav-links" id="navbarSupportedContent">
                     <ul class="navbar-nav mx-auto">
-                        <li class="nav-item active">
-                            <a class="nav-link" href="index.php">Home <span class="sr-only">(current)</span></a>
+                        <li class="nav-item <?php echo basename($_SERVER['PHP_SELF']) == 'index.php' ? 'active' : ''; ?>">
+                            <a class="nav-link" href="index.php">Home</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="publication.php">Publication</a>
+                        <li class="nav-item <?php echo basename($_SERVER['PHP_SELF']) == 'publication.php' ? 'active' : ''; ?>">
+                            <a class="nav-link" href="publication.php">Publications</a>
                         </li>
-                        <li class="nav-item ">
-                            <a class="nav-link" href="editorial-board.php">Editorial Board</a>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="dropdownMenuButton2" data-toggle="dropdown"
-                                aria-haspopup="true" aria-expanded="false">About Us</a>
-                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton2">
-                                <a class="dropdown-item" href="our-founders.php">Our Founders</a>
-                                <a class="dropdown-item" href="our-mission.php">Our Mission</a>
-                                <a class="dropdown-item" href="our-funding.php">Our Funding</a>
-                            </div>
-                        </li>
-                        <li class="nav-item dropdown">
+                        <li class="nav-item dropdown <?php echo in_array(basename($_SERVER['PHP_SELF']), ['user-dashboard.php', 'call-for-paper.php', 'authorguidelines.php', 'copyright.php']) ? 'active' : ''; ?>">
                             <a class="nav-link dropdown-toggle" href="#" id="dropdownMenuButton3" data-toggle="dropdown"
                                 aria-haspopup="true" aria-expanded="false">Paper Submissions</a>
                             <div class="dropdown-menu" aria-labelledby="dropdownMenuButton3">
@@ -210,15 +198,31 @@
                                 <a class="dropdown-item" href="copyright.php">Copyright</a>
                             </div>
                         </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="dropdownSupport" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Support GYSJ</a>
+                        <li class="nav-item dropdown <?php echo in_array(basename($_SERVER['PHP_SELF']), ['our-founders.php', 'our-mission.php', 'our-funding.php']) ? 'active' : ''; ?>">
+                            <a class="nav-link dropdown-toggle" href="#" id="dropdownMenuButton2" data-toggle="dropdown"
+                                aria-haspopup="true" aria-expanded="false">About Us</a>
+                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton2">
+                                <a class="dropdown-item" href="our-founders.php">Our Founders</a>
+                                <a class="dropdown-item" href="our-mission.php">Our Mission</a>
+                                <a class="dropdown-item" href="our-funding.php">Our Funding</a>
+                            </div>
+                        </li>
+                        <li class="nav-item dropdown <?php echo in_array(basename($_SERVER['PHP_SELF']), ['editorial-board.php', 'editorial-members.php']) ? 'active' : ''; ?>">
+                            <a class="nav-link dropdown-toggle" href="#" id="dropdownEditorialBoard" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Editorial Board</a>
+                            <div class="dropdown-menu" aria-labelledby="dropdownEditorialBoard">
+                                <a class="dropdown-item" href="editorial-board.php">About the Board</a>
+                                <a class="dropdown-item" href="editorial-members.php">Members</a>
+                            </div>
+                        </li>
+                        <li class="nav-item dropdown <?php echo in_array(basename($_SERVER['PHP_SELF']), ['contribute.php', 'partners.php']) ? 'active' : ''; ?>">
+                            <a class="nav-link dropdown-toggle" href="#" id="dropdownSupport" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Support Us</a>
                             <div class="dropdown-menu" aria-labelledby="dropdownSupport">
                                 <a class="dropdown-item" href="contribute.php">Contribute</a>
                                 <a class="dropdown-item" href="partners.php">Partners</a>
                             </div>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="contact.php">Contact Us</a>
+                        <li class="nav-item <?php echo basename($_SERVER['PHP_SELF']) == 'contact.php' ? 'active' : ''; ?>">
+                            <a class="nav-link" href="contact.php">Contact</a>
                         </li>
 
                         <?php if (auth_is_logged_in()): $navUser = auth_current_user(); ?>
@@ -271,13 +275,13 @@
                     </div>
                     <div>
                         <h2 class="mb-3">Journal Description</h2>
-                        <p>The Global Youth Science Journal (GYS Journal) is a peer-reviewed, open-access platform for young researchers (ages 12 to 20). We publish original research across diverse fields and support global collaboration through rigorous editorial standards.</p>
+                        <p>The Global Youth Science Journal (GYS Journal) is a peer-reviewed, open-access platform for young researchers. We publish original research across diverse fields and support global collaboration through rigorous editorial standards.</p>
                         <a href="our-mission.php">Read More</a>
 
                         <div class="mt-4">
                             <p class="mb-1"><b>Publication Model:</b> Open Access</p>
                             <p class="mb-1"><b>Submissions:</b> Open year-round</p>
-                            <p class="mb-1"><b>Eligibility:</b> Ages 12 to 20</p>
+                            <p class="mb-1"><b>Eligibility:</b> Open to all young researchers</p>
                         </div>
 
                         <div class="mt-4" aria-label="Indexing information">
@@ -603,7 +607,7 @@
                         <img src="images/iysjournal.png" class="footer_logo mr-2" alt="Global Youth Science Journal logo">
                         <span class="footer_main_title">Global Youth Science Journal</span>
                     </a>
-                    <p class="footer_sub_about mt-3 mb-2">Peer-reviewed, open-access research for young scientists (ages 12 to 20).</p>
+                    <p class="footer_sub_about mt-3 mb-2">Peer-reviewed, open-access research for young scientists.</p>
                 </div>
                 <div class="col-6 col-lg-2 mb-4">
                     <div class="footer_main_title mb-2">Explore</div>

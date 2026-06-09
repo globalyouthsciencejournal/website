@@ -143,25 +143,13 @@
 
                 <div class="collapse navbar-collapse w-100 mt-3 gysj-nav-links" id="navbarSupportedContent">
                     <ul class="navbar-nav mx-auto">
-                        <li class="nav-item active">
-                            <a class="nav-link" href="index.php">Home <span class="sr-only">(current)</span></a>
+                        <li class="nav-item <?php echo basename($_SERVER['PHP_SELF']) == 'index.php' ? 'active' : ''; ?>">
+                            <a class="nav-link" href="index.php">Home</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="publication.php">Publication</a>
+                        <li class="nav-item <?php echo basename($_SERVER['PHP_SELF']) == 'publication.php' ? 'active' : ''; ?>">
+                            <a class="nav-link" href="publication.php">Publications</a>
                         </li>
-                        <li class="nav-item ">
-                            <a class="nav-link" href="editorial-board.php">Editorial Board</a>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="dropdownMenuButton2" data-toggle="dropdown"
-                                aria-haspopup="true" aria-expanded="false">About Us</a>
-                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton2">
-                                <a class="dropdown-item" href="our-founders.php">Our Founders</a>
-                                <a class="dropdown-item" href="our-mission.php">Our Mission</a>
-                                <a class="dropdown-item" href="our-funding.php">Our Funding</a>
-                            </div>
-                        </li>
-                        <li class="nav-item dropdown">
+                        <li class="nav-item dropdown <?php echo in_array(basename($_SERVER['PHP_SELF']), ['user-dashboard.php', 'call-for-paper.php', 'authorguidelines.php', 'copyright.php']) ? 'active' : ''; ?>">
                             <a class="nav-link dropdown-toggle" href="#" id="dropdownMenuButton3" data-toggle="dropdown"
                                 aria-haspopup="true" aria-expanded="false">Paper Submissions</a>
                             <div class="dropdown-menu" aria-labelledby="dropdownMenuButton3">
@@ -171,32 +159,48 @@
                                 <a class="dropdown-item" href="copyright.php">Copyright</a>
                             </div>
                         </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="dropdownSupport" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Support GYSJ</a>
+                        <li class="nav-item dropdown <?php echo in_array(basename($_SERVER['PHP_SELF']), ['our-founders.php', 'our-mission.php', 'our-funding.php']) ? 'active' : ''; ?>">
+                            <a class="nav-link dropdown-toggle" href="#" id="dropdownMenuButton2" data-toggle="dropdown"
+                                aria-haspopup="true" aria-expanded="false">About Us</a>
+                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton2">
+                                <a class="dropdown-item" href="our-founders.php">Our Founders</a>
+                                <a class="dropdown-item" href="our-mission.php">Our Mission</a>
+                                <a class="dropdown-item" href="our-funding.php">Our Funding</a>
+                            </div>
+                        </li>
+                        <li class="nav-item dropdown <?php echo in_array(basename($_SERVER['PHP_SELF']), ['editorial-board.php', 'editorial-members.php']) ? 'active' : ''; ?>">
+                            <a class="nav-link dropdown-toggle" href="#" id="dropdownEditorialBoard" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Editorial Board</a>
+                            <div class="dropdown-menu" aria-labelledby="dropdownEditorialBoard">
+                                <a class="dropdown-item" href="editorial-board.php">About the Board</a>
+                                <a class="dropdown-item" href="editorial-members.php">Members</a>
+                            </div>
+                        </li>
+                        <li class="nav-item dropdown <?php echo in_array(basename($_SERVER['PHP_SELF']), ['contribute.php', 'partners.php']) ? 'active' : ''; ?>">
+                            <a class="nav-link dropdown-toggle" href="#" id="dropdownSupport" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Support Us</a>
                             <div class="dropdown-menu" aria-labelledby="dropdownSupport">
                                 <a class="dropdown-item" href="contribute.php">Contribute</a>
                                 <a class="dropdown-item" href="partners.php">Partners</a>
                             </div>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="contact.php">Contact Us</a>
+                        <li class="nav-item <?php echo basename($_SERVER['PHP_SELF']) == 'contact.php' ? 'active' : ''; ?>">
+                            <a class="nav-link" href="contact.php">Contact</a>
                         </li>
 
                         <?php if (auth_is_logged_in()): $navUser = auth_current_user(); ?>
                         <li class="nav-item dropdown">
-                          <a class="nav-link dropdown-toggle" href="#" id="accountMenu" data-toggle="dropdown"
-                            aria-haspopup="true" aria-expanded="false"><?php echo e(($navUser['name'] ?? '') !== '' ? $navUser['name'] : ($navUser['email'] ?? 'Account')); ?></a>
-                          <div class="dropdown-menu" aria-labelledby="accountMenu">
-                            <a class="dropdown-item" href="<?php echo e((($navUser['role'] ?? '') === 'admin') ? 'admin-dashboard.php' : 'user-dashboard.php'); ?>">Dashboard</a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="account.php">Account Settings</a>
-                            <a class="dropdown-item" href="logout.php">Log Out</a>
-                          </div>
+                            <a class="nav-link dropdown-toggle" href="#" id="accountMenu" data-toggle="dropdown"
+                                aria-haspopup="true" aria-expanded="false"><?php echo e(($navUser['name'] ?? '') !== '' ? $navUser['name'] : ($navUser['email'] ?? 'Account')); ?></a>
+                            <div class="dropdown-menu" aria-labelledby="accountMenu">
+                                <a class="dropdown-item" href="<?php echo e((($navUser['role'] ?? '') === 'admin') ? 'admin-dashboard.php' : 'user-dashboard.php'); ?>">Dashboard</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="account.php">Account Settings</a>
+                                <a class="dropdown-item" href="logout.php">Log Out</a>
+                            </div>
                         </li>
                         <?php else: ?>
                         <li class="nav-item">
-                          <a class="nav-link btn btn-primary btn-sm text-white px-3" href="login.php"
-                            style="margin-top:4px; margin-left:8px;">Login / Sign Up</a>
+                            <a class="nav-link btn btn-primary btn-sm text-white px-3" href="login.php"
+                                style="margin-top:4px; margin-left:8px;">Login / Sign Up</a>
                         </li>
                         <?php endif; ?>
                     </ul>
@@ -221,119 +225,182 @@
   </style>
 
 
-  <div class="container-fluid pb-4 pt-4 paddding">
-    <div class="container paddding">
+  <div class="container-fluid pb-4 pt-5 bg-light" style="background-color: #f8f9fa;">
+    <div class="container">
 
-      <div class="section-header mt-5 text-center">
-        <h2>Peer Review &amp; Editorial Board</h2>
-        <p class="text-muted mt-2">How peer review works at GYS Journal, and how to apply to join the board.</p>
-      </div>
-
-      <div class="row mt-4">
-        <div class="col-lg-9 mx-auto">
-          <div id="box-id-111950" class="free-text">
-            <div class="h5 mb-3">
-              &gt;&gt; Peer Review <br>
-              &gt;&gt; Editorial Board
-            </div>
-
-            <p class="mb-3">
-              <strong>If you are interested in GYS Journal peer review board membership, apply using the button below.</strong>
-              <br>
-              <span class="text-muted">You will be asked to create an admin application (CV required). For questions, email
-                <a href="mailto:globalyouthsciencejournal@gmail.com">globalyouthsciencejournal@gmail.com</a>.</span>
-            </p>
-            <p class="mb-0">
-              We believe in quality over quantity. Hence, it is imperative that our editorial team and board members candidates should have prior experience working in that research field. We accept all candidates from ages 12 to 20. Candidates should have and be able to show experience in their research field, all other requests will be rejected outright for quality control reasons.
-            </p>
-          </div>
-
-          <a href="admin-signup.php" type="button" class="btn btn-primary mt-4">Apply Now</a>
+      <!-- Hero Section -->
+      <div class="row align-items-center mb-5 pb-4 border-bottom">
+        <div class="col-lg-8 mx-auto text-center">
+          <h1 class="display-4 font-weight-bold mb-3" style="color: black;">Join Our Editorial Board</h1>
+          <p class="lead text-muted mb-4">Help shape the future of young scientific publishing by becoming a peer reviewer.</p>
+          <a href="admin-signup.php" class="btn btn-primary btn-lg px-5 rounded-pill">Apply Now</a>
+          <p class="text-muted small mt-3">CV required. We accept candidates with relevant research experience.</p>
         </div>
       </div>
 
-      <div class="row mt-5">
-        <div class="col-lg-10 mx-auto">
-          <div class="myboxes">
-            <div class="header">
-              <div itemscope="" itemtype="http://schema.org/CreativeWork">
-                <div class="h4 font-weight-bold mb-3">Peer Review Process and Criteria</div>
-
-                <p>
-                  Peer review is essential for assessing the quality of articles submitted to academic journals. Before an article is approved for publication in a peer-reviewed journal, it must undergo the following steps:
-                </p>
-
-                <ol class="pl-3 mb-4">
-                  <li>The author submits the article to the journal editor.</li>
-                  <li>The editor forwards the article to experts in the subject area.</li>
-                  <li>These impartial reviewers thoroughly evaluate the manuscript's quality.</li>
-                  <li>Reviewers examine the manuscript for accuracy and assess the validity of the study's methods and procedures.</li>
-                  <li>If needed, they suggest revisions.</li>
-                </ol>
-
-                <p>
-                  Articles published in peer-reviewed journals meet the discipline's standards, representing the best research practices.
-                </p>
-
-                <div class="h5 font-weight-bold mt-4 mb-2">Criteria and Considerations for Peer Review</div>
-
-                <p><strong>Overall Impact:</strong> Reviewers assign an overall impact/priority score based on the project's potential for a significant, lasting influence on the research field.</p>
-
-                <p><strong>Scored Review Criteria:</strong> Reviewers evaluate scientific and technical merit by scoring each criterion separately. A project doesn't need to excel in every category to have a significant scientific impact; for example, a non-innovative project might still be crucial for advancing a field.</p>
-
-                <ul class="mb-4">
-                  <li><strong>Significance:</strong> Does the project tackle a significant problem or barrier? Will achieving the project's aims enhance scientific knowledge, technical capability, or clinical practice? How will it change the concepts, methods, technologies, treatments, services, or preventative interventions in the field?</li>
-                  <li><strong>Investigator(s):</strong> Are the project directors, principal investigators, collaborators, and other researchers well-suited for the project? For early-stage or new investigators, do they have the appropriate experience and training? For established researchers, have they consistently advanced their field? In collaborative or multi-investigator projects, do the investigators' expertise complement each other, and is their leadership and organizational structure suitable for the project?</li>
-                  <li><strong>Innovation:</strong> Does the application challenge or seek to shift current research or clinical practices with novel concepts, approaches, methodologies, instrumentation, or interventions? Are these elements new to the field or broadly innovative? Does the project propose improvements or new applications of existing theories, methods, instrumentation, or interventions?</li>
-                  <li><strong>Approach:</strong> Are the strategy, methodology, and analyses well-reasoned and appropriate for achieving the project's aims? Are potential issues, alternative strategies, and success benchmarks clearly presented? For early-stage projects, does the strategy demonstrate feasibility and manage particularly risky aspects? For clinical research, are the plans for protecting human subjects and including diverse populations justified in terms of the project's scientific goals and strategy?</li>
-                  <li><strong>Environment:</strong> Does the scientific environment support the project's success? Are the institutional support, equipment, and other resources adequate? Will the project benefit from unique features of the environment, such as specific populations or collaborative arrangements?</li>
-                </ul>
-
-                <p><strong>Additional Review Criteria:</strong> Reviewers will also consider the following without assigning separate scores:</p>
-
-                <ul class="mb-4">
-                  <li>Protections for human subjects</li>
-                  <li>Inclusion of women, minorities, and children</li>
-                  <li>Use of vertebrate animals</li>
-                  <li>Handling of biohazards</li>
-                  <li>Considerations for resubmissions, renewals, and revisions</li>
-                </ul>
-
-                <p><strong>Additional Review Considerations:</strong> Reviewers will consider, but not score, the following:</p>
-
-                <ul class="mb-0">
-                  <li>Applications from foreign organizations</li>
-                  <li>Select agents</li>
-                  <li>Resource sharing plans</li>
-                  <li>Budget and support period</li>
-                </ul>
+      <!-- Peer Review Process (Steps) -->
+      <div class="mb-5 pb-4 border-bottom">
+        <div class="h3 font-weight-bold mb-4 text-center">The Peer Review Process</div>
+        <p class="text-center text-muted mb-5">Articles published in peer-reviewed journals meet the discipline's standards, representing the best research practices.</p>
+        <div class="row text-center">
+          <div class="col-md-4 mb-4">
+            <div class="card border-0 h-100 py-4">
+              <div class="card-body">
+                <div class="display-4 text-primary mb-3"><i class="fa fa-search"></i></div>
+                <h5 class="font-weight-bold">1. Junior Editor</h5>
+                <p class="text-muted mb-0">Performs initial screening for formatting, plagiarism, and completeness.</p>
               </div>
             </div>
           </div>
-
-          <a id="board"></a>
-          <br>
-          <hr>
-
-          <div class="text-center my-4">
-            <a href="admin-signup.php" class="btn btn-primary">Apply Now</a>
-            <div class="text-muted small mt-2">CV required. Applications are reviewed by existing admins.</div>
+          <div class="col-md-4 mb-4">
+            <div class="card border-0 h-100 py-4">
+              <div class="card-body">
+                <div class="display-4 text-primary mb-3"><i class="fa fa-users"></i></div>
+                <h5 class="font-weight-bold">2. Reviewer Panel</h5>
+                <p class="text-muted mb-0">A panel of experts evaluates the manuscript, suggesting approval, revisions, or rejection.</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4 mb-4">
+            <div class="card border-0 h-100 py-4">
+              <div class="card-body">
+                <div class="display-4 text-primary mb-3"><i class="fa fa-gavel"></i></div>
+                <h5 class="font-weight-bold">3. Editor in Chief</h5>
+                <p class="text-muted mb-0">Makes the final, authoritative decision on whether to publish the paper or not.</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      <style>
-        /* Keep content clean (no boxed sections) */
-        .myboxes,
-        .free-text {
-          background: transparent;
-          border: 0;
-          padding: 0;
-        }
-      </style>
+      <!-- Review Criteria -->
+      <div class="mb-5">
+        <div class="h3 font-weight-bold mb-4 text-center">Review Criteria</div>
+        <p class="text-center text-muted mb-5">Reviewers evaluate scientific and technical merit by assigning an overall impact score and evaluating each criterion below.</p>
+        
+        <div class="row">
+          <div class="col-lg-6 mb-4">
+            <div class="d-flex bg-white p-4 rounded h-100">
+              <div class="text-primary mr-4 mt-1"><i class="fa fa-graduation-cap fa-2x"></i></div>
+              <div>
+                <h5 class="font-weight-bold">Author Eligibility</h5>
+                <p class="text-muted mb-0">Ensure the primary authors are young scientists at the time of submission. Reviewers will check if the authors have genuinely contributed to the conceptualization, execution, and writing of the research process, and have documented the consent of any adult mentors or co-authors.</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-6 mb-4">
+            <div class="d-flex bg-white p-4 rounded h-100">
+              <div class="text-primary mr-4 mt-1"><i class="fa fa-copy fa-2x"></i></div>
+              <div>
+                <h5 class="font-weight-bold">Originality & Plagiarism</h5>
+                <p class="text-muted mb-0">The manuscript must be a completely original piece of work. Reviewers use detection software to ensure that any ideas, data, or text sourced from external literature are rigorously cited and appropriately paraphrased. Self-plagiarism, such as resubmitting previously published work, is strictly prohibited.</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-6 mb-4">
+            <div class="d-flex bg-white p-4 rounded h-100">
+              <div class="text-primary mr-4 mt-1"><i class="fa fa-balance-scale fa-2x"></i></div>
+              <div>
+                <h5 class="font-weight-bold">Academic Honesty & Ethics</h5>
+                <p class="text-muted mb-0">Assess if the study adheres to strict scientific and ethical standards. Any use of AI tools for language assistance must be transparently disclosed. Furthermore, studies involving human participants or vertebrate animals must show adherence to humane treatment and note Institutional Review Board (IRB) or equivalent committee consent where applicable.</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-6 mb-4">
+            <div class="d-flex bg-white p-4 rounded h-100">
+              <div class="text-primary mr-4 mt-1"><i class="fa fa-file-text fa-2x"></i></div>
+              <div>
+                <h5 class="font-weight-bold">Manuscript Quality</h5>
+                <p class="text-muted mb-0">Evaluate the scientific rigor and structural clarity of the paper. A well-constructed paper should feature a comprehensive Abstract, contextual Introduction, replicable Materials and Methods, clear Results, and a thoughtful Discussion of limitations and future directions. The language should remain objective and academic.</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-6 mb-4">
+            <div class="d-flex bg-white p-4 rounded h-100">
+              <div class="text-primary mr-4 mt-1"><i class="fa fa-bar-chart fa-2x"></i></div>
+              <div>
+                <h5 class="font-weight-bold">Figures & Tables</h5>
+                <p class="text-muted mb-0">Verify that all visual aids, charts, and diagrams are high-resolution, legible, and directly support the research findings. Each figure or table must be accompanied by a bold, descriptive title and a comprehensive caption that includes relevant methodological notes and statistical values.</p>
+              </div>
+            </div>
+          </div>
+           <div class="col-lg-6 mb-4">
+            <div class="d-flex bg-white p-4 rounded h-100">
+              <div class="text-primary mr-4 mt-1"><i class="fa fa-bookmark fa-2x"></i></div>
+              <div>
+                <h5 class="font-weight-bold">Citations & References</h5>
+                <p class="text-muted mb-0">Check that the authors have prioritized high-quality, primary peer-reviewed sources rather than informal web content or encyclopedias. All in-text citations and the final bibliography must be consistently formatted following the Chicago style guidelines, including proper DOIs and URLs.</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-6 mb-4">
+            <div class="d-flex bg-white p-4 rounded h-100">
+              <div class="text-primary mr-4 mt-1"><i class="fa fa-star fa-2x"></i></div>
+              <div>
+                <h5 class="font-weight-bold">Scientific Significance</h5>
+                <p class="text-muted mb-0">Determine if the research addresses a relevant and meaningful scientific problem. Reviewers should assess whether the study's aims, if achieved, contribute valuable insights, enhance existing knowledge, or offer practical applications within its respective STEM field.</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-6 mb-4">
+            <div class="d-flex bg-white p-4 rounded h-100">
+              <div class="text-primary mr-4 mt-1"><i class="fa fa-flask fa-2x"></i></div>
+              <div>
+                <h5 class="font-weight-bold">Methodological Soundness</h5>
+                <p class="text-muted mb-0">Critically evaluate the experimental design and procedures. Ensure that the methodology is logically constructed, replicable, and uses appropriate control groups. The chosen methods must be suitable to effectively answer the proposed research question.</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-6 mb-4">
+            <div class="d-flex bg-white p-4 rounded h-100">
+              <div class="text-primary mr-4 mt-1"><i class="fa fa-line-chart fa-2x"></i></div>
+              <div>
+                <h5 class="font-weight-bold">Data Analysis & Interpretation</h5>
+                <p class="text-muted mb-0">Assess the accuracy and validity of the data analysis. Reviewers must check if the statistical tests applied are appropriate for the data type and if the conclusions drawn by the authors logically and directly follow from their presented results, without overstatement.</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-6 mb-4">
+            <div class="d-flex bg-white p-4 rounded h-100">
+              <div class="text-primary mr-4 mt-1"><i class="fa fa-rocket fa-2x"></i></div>
+              <div>
+                <h5 class="font-weight-bold">Innovation & Creativity</h5>
+                <p class="text-muted mb-0">Look for elements of originality and creative problem-solving. This criterion evaluates whether the authors have introduced novel concepts, developed unique experimental setups, or approached an existing scientific challenge from a fresh, innovative perspective.</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-6 mb-4">
+            <div class="d-flex bg-white p-4 rounded h-100">
+              <div class="text-primary mr-4 mt-1"><i class="fa fa-language fa-2x"></i></div>
+              <div>
+                <h5 class="font-weight-bold">Clarity of Communication</h5>
+                <p class="text-muted mb-0">Judge the overall readability and professional tone of the manuscript. The writing should be clear, concise, and free of informal language or colloquialisms. Reviewers should also note if the manuscript requires significant grammatical revisions.</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-6 mb-4">
+            <div class="d-flex bg-white p-4 rounded h-100">
+              <div class="text-primary mr-4 mt-1"><i class="fa fa-binoculars fa-2x"></i></div>
+              <div>
+                <h5 class="font-weight-bold">Limitations & Future Scope</h5>
+                <p class="text-muted mb-0">Examine whether the authors demonstrate a mature understanding of their research constraints. A strong paper will critically evaluate its own methodology, openly discuss potential limitations, and suggest concrete, logical directions for future scientific inquiry.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Final CTA -->
+      <div class="text-center mt-5 bg-white p-5 rounded">
+        <h4 class="font-weight-bold mb-3">Ready to Join Us?</h4>
+        <p class="text-muted mb-4">For any questions, feel free to contact us at <a href="mailto:globalyouthsciencejournal@gmail.com">globalyouthsciencejournal@gmail.com</a>.</p>
+        <a href="admin-signup.php" class="btn btn-primary btn-lg px-5 rounded-pill">Apply Now</a>
+      </div>
 
     </div>
   </div>
+
+
 
   <div class="gototop js-top">
     <a href="#" class="js-gotop"><i class="fa fa-arrow-up"></i></a>
@@ -346,7 +413,7 @@
             <img src="images/iysjournal.png" class="footer_logo mr-2" alt="Global Youth Science Journal logo">
             <span class="footer_main_title">Global Youth Science Journal</span>
           </a>
-          <p class="footer_sub_about mt-3 mb-2">Peer-reviewed, open-access research for young scientists (ages 12-20).</p>
+          <p class="footer_sub_about mt-3 mb-2">Peer-reviewed, open-access research for young scientists.</p>
         </div>
         <div class="col-6 col-lg-2 mb-4">
           <div class="footer_main_title mb-2">Explore</div>

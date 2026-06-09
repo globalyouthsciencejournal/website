@@ -1230,9 +1230,9 @@ iframe {
 
 .gototop {
   position: fixed;
-  bottom: 20px;
+  bottom: 120px;
   right: 20px;
-  z-index: 999;
+  z-index: 999999;
   opacity: 0;
   visibility: hidden;
   -moz-transition: all .5s ease;

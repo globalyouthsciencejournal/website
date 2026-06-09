@@ -142,25 +142,13 @@
 
                 <div class="collapse navbar-collapse w-100 mt-3 gysj-nav-links" id="navbarSupportedContent">
                     <ul class="navbar-nav mx-auto">
-                        <li class="nav-item active">
-                            <a class="nav-link" href="index.php">Home <span class="sr-only">(current)</span></a>
+                        <li class="nav-item <?php echo basename($_SERVER['PHP_SELF']) == 'index.php' ? 'active' : ''; ?>">
+                            <a class="nav-link" href="index.php">Home</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="publication.php">Publication</a>
+                        <li class="nav-item <?php echo basename($_SERVER['PHP_SELF']) == 'publication.php' ? 'active' : ''; ?>">
+                            <a class="nav-link" href="publication.php">Publications</a>
                         </li>
-                        <li class="nav-item ">
-                            <a class="nav-link" href="editorial-board.php">Editorial Board</a>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="dropdownMenuButton2" data-toggle="dropdown"
-                                aria-haspopup="true" aria-expanded="false">About Us</a>
-                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton2">
-                                <a class="dropdown-item" href="our-founders.php">Our Founders</a>
-                                <a class="dropdown-item" href="our-mission.php">Our Mission</a>
-                                <a class="dropdown-item" href="our-funding.php">Our Funding</a>
-                            </div>
-                        </li>
-                        <li class="nav-item dropdown">
+                        <li class="nav-item dropdown <?php echo in_array(basename($_SERVER['PHP_SELF']), ['user-dashboard.php', 'call-for-paper.php', 'authorguidelines.php', 'copyright.php']) ? 'active' : ''; ?>">
                             <a class="nav-link dropdown-toggle" href="#" id="dropdownMenuButton3" data-toggle="dropdown"
                                 aria-haspopup="true" aria-expanded="false">Paper Submissions</a>
                             <div class="dropdown-menu" aria-labelledby="dropdownMenuButton3">
@@ -170,32 +158,48 @@
                                 <a class="dropdown-item" href="copyright.php">Copyright</a>
                             </div>
                         </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="dropdownSupport" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Support GYSJ</a>
+                        <li class="nav-item dropdown <?php echo in_array(basename($_SERVER['PHP_SELF']), ['our-founders.php', 'our-mission.php', 'our-funding.php']) ? 'active' : ''; ?>">
+                            <a class="nav-link dropdown-toggle" href="#" id="dropdownMenuButton2" data-toggle="dropdown"
+                                aria-haspopup="true" aria-expanded="false">About Us</a>
+                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton2">
+                                <a class="dropdown-item" href="our-founders.php">Our Founders</a>
+                                <a class="dropdown-item" href="our-mission.php">Our Mission</a>
+                                <a class="dropdown-item" href="our-funding.php">Our Funding</a>
+                            </div>
+                        </li>
+                        <li class="nav-item dropdown <?php echo in_array(basename($_SERVER['PHP_SELF']), ['editorial-board.php', 'editorial-members.php']) ? 'active' : ''; ?>">
+                            <a class="nav-link dropdown-toggle" href="#" id="dropdownEditorialBoard" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Editorial Board</a>
+                            <div class="dropdown-menu" aria-labelledby="dropdownEditorialBoard">
+                                <a class="dropdown-item" href="editorial-board.php">About the Board</a>
+                                <a class="dropdown-item" href="editorial-members.php">Members</a>
+                            </div>
+                        </li>
+                        <li class="nav-item dropdown <?php echo in_array(basename($_SERVER['PHP_SELF']), ['contribute.php', 'partners.php']) ? 'active' : ''; ?>">
+                            <a class="nav-link dropdown-toggle" href="#" id="dropdownSupport" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Support Us</a>
                             <div class="dropdown-menu" aria-labelledby="dropdownSupport">
                                 <a class="dropdown-item" href="contribute.php">Contribute</a>
                                 <a class="dropdown-item" href="partners.php">Partners</a>
                             </div>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="contact.php">Contact Us</a>
+                        <li class="nav-item <?php echo basename($_SERVER['PHP_SELF']) == 'contact.php' ? 'active' : ''; ?>">
+                            <a class="nav-link" href="contact.php">Contact</a>
                         </li>
 
                         <?php if (auth_is_logged_in()): $navUser = auth_current_user(); ?>
                         <li class="nav-item dropdown">
-                          <a class="nav-link dropdown-toggle" href="#" id="accountMenu" data-toggle="dropdown"
-                            aria-haspopup="true" aria-expanded="false"><?php echo e(($navUser['name'] ?? '') !== '' ? $navUser['name'] : ($navUser['email'] ?? 'Account')); ?></a>
-                          <div class="dropdown-menu" aria-labelledby="accountMenu">
-                            <a class="dropdown-item" href="<?php echo e((($navUser['role'] ?? '') === 'admin') ? 'admin-dashboard.php' : 'user-dashboard.php'); ?>">Dashboard</a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="account.php">Account Settings</a>
-                            <a class="dropdown-item" href="logout.php">Log Out</a>
-                          </div>
+                            <a class="nav-link dropdown-toggle" href="#" id="accountMenu" data-toggle="dropdown"
+                                aria-haspopup="true" aria-expanded="false"><?php echo e(($navUser['name'] ?? '') !== '' ? $navUser['name'] : ($navUser['email'] ?? 'Account')); ?></a>
+                            <div class="dropdown-menu" aria-labelledby="accountMenu">
+                                <a class="dropdown-item" href="<?php echo e((($navUser['role'] ?? '') === 'admin') ? 'admin-dashboard.php' : 'user-dashboard.php'); ?>">Dashboard</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="account.php">Account Settings</a>
+                                <a class="dropdown-item" href="logout.php">Log Out</a>
+                            </div>
                         </li>
                         <?php else: ?>
                         <li class="nav-item">
-                          <a class="nav-link btn btn-primary btn-sm text-white px-3" href="login.php"
-                            style="margin-top:4px; margin-left:8px;">Login / Sign Up</a>
+                            <a class="nav-link btn btn-primary btn-sm text-white px-3" href="login.php"
+                                style="margin-top:4px; margin-left:8px;">Login / Sign Up</a>
                         </li>
                         <?php endif; ?>
                     </ul>
@@ -302,7 +306,7 @@
           <img src="images/iysjournal.png" class="footer_logo mr-2" alt="Global Youth Science Journal logo">
           <span class="footer_main_title">Global Youth Science Journal</span>
         </a>
-        <p class="footer_sub_about mt-3 mb-2">Peer-reviewed, open-access research for young scientists (ages 12 to 20).</p>
+        <p class="footer_sub_about mt-3 mb-2">Peer-reviewed, open-access research for young scientists.</p>
       </div>
       <div class="col-6 col-lg-2 mb-4">
         <div class="footer_main_title mb-2">Explore</div>

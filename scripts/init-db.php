@@ -2,20 +2,15 @@
 declare(strict_types=1);
 
 // CLI-only DB initializer for local/dev usage.
+// Modified to allow web execution temporarily for setup.
 // Applies `sql/schema.sql` using the DB credentials from `includes/config.php` (+ optional `includes/config.local.php`).
-
-if (PHP_SAPI !== 'cli') {
-    http_response_code(404);
-    echo 'Not Found';
-    exit;
-}
 
 require_once __DIR__ . '/../includes/db.php';
 
 try {
     $pdo = db();
 } catch (Throwable $e) {
-    fwrite(STDERR, "Database connection failed: " . $e->getMessage() . "\n");
+    echo "Database connection failed: " . $e->getMessage() . "\n";
     exit(1);
 }
 
@@ -29,16 +24,18 @@ try {
 $schemaPath = __DIR__ . '/../sql/schema.sql';
 if (strtolower($driver) === 'sqlite') {
     $schemaPath = __DIR__ . '/../sql/schema.sqlite.sql';
+} elseif (strtolower($driver) === 'pgsql' || strtolower($driver) === 'cockroachdb') {
+    $schemaPath = __DIR__ . '/../sql/schema.postgres.sql';
 }
 
 if (!is_file($schemaPath)) {
-    fwrite(STDERR, "Schema file not found: {$schemaPath}\n");
+    echo "Schema file not found: {$schemaPath}\n";
     exit(1);
 }
 
 $sqlRaw = file_get_contents($schemaPath);
 if ($sqlRaw === false) {
-    fwrite(STDERR, "Failed to read schema file: {$schemaPath}\n");
+    echo "Failed to read schema file: {$schemaPath}\n";
     exit(1);
 }
 

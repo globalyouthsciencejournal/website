@@ -1270,59 +1270,69 @@ if (($success === '') && is_string($_GET['updated'] ?? null) && ($_GET['updated'
 
         <div class="collapse navbar-collapse w-100 mt-3 gysj-nav-links" id="navbarSupportedContent">
           <ul class="navbar-nav mx-auto">
-            <li class="nav-item">
-              <a class="nav-link" href="index.php">Home</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="publication.php">Publication</a>
-            </li>
-            <li class="nav-item ">
-              <a class="nav-link" href="editorial-board.php">Editorial Board</a>
-            </li>
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="dropdownMenuButton2" data-toggle="dropdown"
-                aria-haspopup="true" aria-expanded="false">About Us</a>
-              <div class="dropdown-menu" aria-labelledby="dropdownMenuButton2">
-                <a class="dropdown-item" href="our-founders.php">Our Founders</a>
-                <a class="dropdown-item" href="our-mission.php">Our Mission</a>
-                <a class="dropdown-item" href="our-funding.php">Our Funding</a>
-              </div>
-            </li>
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="dropdownMenuButton3" data-toggle="dropdown"
-                aria-haspopup="true" aria-expanded="false">Paper Submissions</a>
-              <div class="dropdown-menu" aria-labelledby="dropdownMenuButton3">
-                <a class="dropdown-item" href="user-dashboard.php?view=submit">Online Submission</a>
-                <a class="dropdown-item" href="call-for-paper.php">Call for Paper</a>
-                <a class="dropdown-item" href="authorguidelines.php">Guidelines for authors</a>
-                <a class="dropdown-item" href="copyright.php">Copyright</a>
-              </div>
-            </li>
-            <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="dropdownSupport" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Support GYSJ</a>
+                        <li class="nav-item <?php echo basename($_SERVER['PHP_SELF']) == 'index.php' ? 'active' : ''; ?>">
+                            <a class="nav-link" href="index.php">Home</a>
+                        </li>
+                        <li class="nav-item <?php echo basename($_SERVER['PHP_SELF']) == 'publication.php' ? 'active' : ''; ?>">
+                            <a class="nav-link" href="publication.php">Publications</a>
+                        </li>
+                        <li class="nav-item dropdown <?php echo in_array(basename($_SERVER['PHP_SELF']), ['user-dashboard.php', 'call-for-paper.php', 'authorguidelines.php', 'copyright.php']) ? 'active' : ''; ?>">
+                            <a class="nav-link dropdown-toggle" href="#" id="dropdownMenuButton3" data-toggle="dropdown"
+                                aria-haspopup="true" aria-expanded="false">Paper Submissions</a>
+                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton3">
+                                <a class="dropdown-item" href="user-dashboard.php?view=submit">Online Submission</a>
+                                <a class="dropdown-item" href="call-for-paper.php">Call for Paper</a>
+                                <a class="dropdown-item" href="authorguidelines.php">Guidelines for authors</a>
+                                <a class="dropdown-item" href="copyright.php">Copyright</a>
+                            </div>
+                        </li>
+                        <li class="nav-item dropdown <?php echo in_array(basename($_SERVER['PHP_SELF']), ['our-founders.php', 'our-mission.php', 'our-funding.php']) ? 'active' : ''; ?>">
+                            <a class="nav-link dropdown-toggle" href="#" id="dropdownMenuButton2" data-toggle="dropdown"
+                                aria-haspopup="true" aria-expanded="false">About Us</a>
+                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton2">
+                                <a class="dropdown-item" href="our-founders.php">Our Founders</a>
+                                <a class="dropdown-item" href="our-mission.php">Our Mission</a>
+                                <a class="dropdown-item" href="our-funding.php">Our Funding</a>
+                            </div>
+                        </li>
+                        <li class="nav-item dropdown <?php echo in_array(basename($_SERVER['PHP_SELF']), ['editorial-board.php', 'editorial-members.php']) ? 'active' : ''; ?>">
+                            <a class="nav-link dropdown-toggle" href="#" id="dropdownEditorialBoard" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Editorial Board</a>
+                            <div class="dropdown-menu" aria-labelledby="dropdownEditorialBoard">
+                                <a class="dropdown-item" href="editorial-board.php">About the Board</a>
+                                <a class="dropdown-item" href="editorial-members.php">Members</a>
+                            </div>
+                        </li>
+                        <li class="nav-item dropdown <?php echo in_array(basename($_SERVER['PHP_SELF']), ['contribute.php', 'partners.php']) ? 'active' : ''; ?>">
+                            <a class="nav-link dropdown-toggle" href="#" id="dropdownSupport" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Support Us</a>
                             <div class="dropdown-menu" aria-labelledby="dropdownSupport">
                                 <a class="dropdown-item" href="contribute.php">Contribute</a>
                                 <a class="dropdown-item" href="partners.php">Partners</a>
                             </div>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="contact.php">Contact Us</a>
+                        <li class="nav-item <?php echo basename($_SERVER['PHP_SELF']) == 'contact.php' ? 'active' : ''; ?>">
+                            <a class="nav-link" href="contact.php">Contact</a>
                         </li>
 
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="accountMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <?php echo e((string) (($profile['name'] ?? '') !== '' ? $profile['name'] : ($profile['email'] ?? $user['email']))); ?>
-              </a>
-              <div class="dropdown-menu" aria-labelledby="accountMenu">
-                <a class="dropdown-item" href="user-dashboard.php">Dashboard</a>
-                <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="account.php">Account Settings</a>
-                <a class="dropdown-item" href="logout.php">Log Out</a>
-              </div>
-            </li>
-          </ul>
-        </div>
-      </nav>
+                        <?php if (auth_is_logged_in()): $navUser = auth_current_user(); ?>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="accountMenu" data-toggle="dropdown"
+                                aria-haspopup="true" aria-expanded="false"><?php echo e(($navUser['name'] ?? '') !== '' ? $navUser['name'] : ($navUser['email'] ?? 'Account')); ?></a>
+                            <div class="dropdown-menu" aria-labelledby="accountMenu">
+                                <a class="dropdown-item" href="<?php echo e((($navUser['role'] ?? '') === 'admin') ? 'admin-dashboard.php' : 'user-dashboard.php'); ?>">Dashboard</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="account.php">Account Settings</a>
+                                <a class="dropdown-item" href="logout.php">Log Out</a>
+                            </div>
+                        </li>
+                        <?php else: ?>
+                        <li class="nav-item">
+                            <a class="nav-link btn btn-primary btn-sm text-white px-3" href="login.php"
+                                style="margin-top:4px; margin-left:8px;">Login / Sign Up</a>
+                        </li>
+                        <?php endif; ?>
+                    </ul>
+                </div>
+            </nav>
     </div>
   </div>
 
@@ -1469,38 +1479,22 @@ if (($success === '') && is_string($_GET['updated'] ?? null) && ($_GET['updated'
                   <p style="font-size: 13px; font-weight: 500; color: var(--color-text-secondary); margin: 0 0 4px;">Institution</p>
                   <div class="ps-row ps-row-2">
                     <div class="ps-field">
-                      <label class="ps-label" for="position">Position</label>
-                      <input class="ps-input" type="text" id="position" name="position" value="<?php echo e((string) ($profile['position'] ?? '')); ?>" required>
-                    </div>
-                    <div class="ps-field">
-                      <label class="ps-label" for="institution">Institution name</label>
+                      <label class="ps-label" for="institution">Institution / School</label>
                       <input class="ps-input" type="text" id="institution" name="institution" value="<?php echo e((string) ($profile['institution'] ?? '')); ?>" required>
                     </div>
-                  </div>
-                  <div class="ps-field" style="max-width: 340px;">
-                    <label class="ps-label" for="department">Department <span class="opt">(optional)</span></label>
-                    <input class="ps-input" type="text" id="department" name="department" value="<?php echo e((string) ($profile['department'] ?? '')); ?>" placeholder="e.g. Science, Commerce">
-                  </div>
-                </div>
-
-                <div class="ps-divider"></div>
-
-                <div>
-                  <p style="font-size: 13px; font-weight: 500; color: var(--color-text-secondary); margin: 0 0 4px;">Student details</p>
-                  <div class="ps-row ps-row-2">
                     <div class="ps-field">
                       <label class="ps-label" for="grade_level">Grade / Year level</label>
                       <input class="ps-input" type="text" id="grade_level" name="grade_level" value="<?php echo e((string) ($profile['grade_level'] ?? '')); ?>" required>
-                    </div>
-                    <div class="ps-field">
-                      <label class="ps-label" for="school_name">School / College name</label>
-                      <input class="ps-input" type="text" id="school_name" name="school_name" value="<?php echo e((string) ($profile['school_name'] ?? '')); ?>" required>
                     </div>
                   </div>
                   <div class="ps-row ps-row-2">
                     <div class="ps-field">
                       <label class="ps-label" for="school_email">School email <span class="opt">(optional)</span></label>
                       <input class="ps-input" type="email" id="school_email" name="school_email" value="<?php echo e((string) ($profile['school_email'] ?? '')); ?>" placeholder="you@school.edu">
+                      <div style="margin-top: 8px; display: flex; align-items: center; gap: 8px;">
+                        <input type="checkbox" id="no_school_email_acc" onchange="document.getElementById('school_email').disabled = this.checked; if(this.checked) document.getElementById('school_email').value='';" style="width: auto; margin: 0;">
+                        <label for="no_school_email_acc" style="margin: 0; font-size: 13px; font-weight: normal; color: var(--color-text-secondary); cursor: pointer;">My school doesn't provide an email</label>
+                      </div>
                     </div>
                     <div class="ps-field">
                       <label class="ps-label" for="admission_number">Admission / ERP number <span class="opt">(optional)</span></label>

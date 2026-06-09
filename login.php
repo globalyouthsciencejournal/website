@@ -11,9 +11,140 @@ if (auth_is_logged_in()) {
 $redirectParam = $_GET['redirect'] ?? '';
 $redirectFallback = 'user-dashboard.php';
 $error = '';
+$activeTab = 'login'; // 'login' or 'register'
+
+// Signup variables
+$username = '';
+$email = '';
+$phone = '';
+$country = '';
+
+$title = '';
+$firstName = '';
+$middleName = '';
+$lastName = '';
+
+$position = '';
+$institution = '';
+$department = '';
+
+$gradeLevel = '';
+$schoolName = '';
+$schoolEmail = '';
+$admissionNumber = '';
+
+$city = '';
+$state = '';
+$postalCode = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_validate();
+
+    if (isset($_POST['register_submit'])) {
+$username = trim((string) ($_POST['username'] ?? ''));
+          $email = trim((string) ($_POST['email'] ?? ''));
+          $phone = trim((string) ($_POST['phone'] ?? ''));
+          $country = trim((string) ($_POST['country'] ?? ''));
+        
+          $title = trim((string) ($_POST['title'] ?? ''));
+          $firstName = trim((string) ($_POST['first_name'] ?? ''));
+          $middleName = trim((string) ($_POST['middle_name'] ?? ''));
+          $lastName = trim((string) ($_POST['last_name'] ?? ''));
+        
+          $position = trim((string) ($_POST['position'] ?? ''));
+          $institution = trim((string) ($_POST['institution'] ?? ''));
+          $department = trim((string) ($_POST['department'] ?? ''));
+        
+          $gradeLevel = trim((string) ($_POST['grade_level'] ?? ''));
+          $schoolName = trim((string) ($_POST['school_name'] ?? ''));
+          $schoolEmail = trim((string) ($_POST['school_email'] ?? ''));
+          $admissionNumber = trim((string) ($_POST['admission_number'] ?? ''));
+        
+          $city = trim((string) ($_POST['city'] ?? ''));
+          $state = trim((string) ($_POST['state'] ?? ''));
+          $postalCode = trim((string) ($_POST['postal_code'] ?? ''));
+        
+            $password = (string) ($_POST['password'] ?? '');
+            $password2 = (string) ($_POST['password2'] ?? '');
+        
+          $nameParts = [$firstName];
+          if ($middleName !== '') {
+            $nameParts[] = $middleName;
+          }
+          $nameParts[] = $lastName;
+          $name = trim(implode(' ', array_filter($nameParts, static function($v) { return $v !== ''; })));
+        
+          if ($username === '' || $email === '' || $phone === '' || $country === '' || $firstName === '' || $lastName === '' || $institution === '' || $gradeLevel === '' || $city === '' || $state === '' || $postalCode === '' || $password === '') {
+                $error = 'Please fill in all required fields.';
+                $activeTab = 'register';
+          } elseif (strlen($username) < 3 || strlen($username) > 64) {
+            $error = 'Username must be between 3 and 64 characters.';
+          } elseif (!preg_match('/^[a-zA-Z0-9][a-zA-Z0-9._-]{1,62}[a-zA-Z0-9]$/', $username)) {
+            $error = 'Username may contain letters, numbers, dots, underscores, and hyphens (must start and end with a letter/number).';
+            } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $error = 'Please enter a valid email.';
+          } elseif (!preg_match('/^\+?[0-9][0-9\s\-]{6,20}$/', $phone)) {
+            $error = 'Please enter a valid phone number (e.g., +91XXXXXXXXXX).';
+          } elseif ($schoolEmail !== '' && !filter_var($schoolEmail, FILTER_VALIDATE_EMAIL)) {
+            $error = 'Please enter a valid school email (or leave it blank).';
+            } elseif (strlen($password) < 8) {
+                $error = 'Password must be at least 8 characters.';
+            } elseif ($password !== $password2) {
+                $error = 'Passwords do not match.';
+            } else {
+                try {
+                    $pdo = db();
+        
+                    $stmt = $pdo->prepare('SELECT 1 FROM users WHERE email = ? LIMIT 1');
+                    $stmt->execute([$email]);
+                    if ($stmt->fetch()) {
+                        $error = 'That email is already registered. Please log in.';
+                        $activeTab = 'register';
+                    } else {
+                $stmt = $pdo->prepare('SELECT 1 FROM users WHERE username = ? LIMIT 1');
+                $stmt->execute([$username]);
+                if ($stmt->fetch()) {
+                  $error = 'That username is already taken. Please choose another.';
+                } else {
+                        $hash = password_hash($password, PASSWORD_DEFAULT);
+                $stmt = $pdo->prepare('INSERT INTO users (name, email, username, phone, country, title, first_name, middle_name, last_name, position, institution, department, grade_level, school_name, school_email, admission_number, city, state, postal_code, password_hash, role) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+                $stmt->execute([$name, $email, $username, $phone, $country, $title !== '' ? $title : null, $firstName, $middleName !== '' ? $middleName : null, $lastName, $position, $institution, $department !== '' ? $department : null, $gradeLevel, $schoolName, $schoolEmail !== '' ? $schoolEmail : null, $admissionNumber !== '' ? $admissionNumber : null, $city, $state, $postalCode, $hash, 'user']);
+        
+                        $userId = (int) $pdo->lastInsertId();
+                        auth_login_user($userId);
+                        redirect('user-dashboard.php');
+                }
+                    }
+                } catch (Throwable $e) {
+                      error_log('Signup error: ' . $e);
+        
+                      $msg = strtolower($e->getMessage());
+                      $code = (string) $e->getCode();
+        
+                      if (strpos($msg, 'could not find driver') !== false) {
+                        $error = 'Sign up is unavailable because the server is missing the MySQL PDO driver (pdo_mysql).';
+                      } elseif (strpos($msg, '[2002]') !== false || strpos($msg, 'connection refused') !== false || strpos($msg, 'no connection could be made') !== false || $code === 'hy000') {
+                        $error = 'Sign up is unavailable because the site cannot connect to the database server. If you are running locally, make sure MySQL is running and DB_HOST/DB_PORT are correct (or update includes/config.local.php).';
+                      } elseif (strpos($msg, 'unknown column') !== false || strpos($msg, 'no such column') !== false) {
+                        $error = 'Sign up is unavailable because the database schema is out of date. Please apply the latest updates to the users table (see sql/schema.sql).';
+                      } elseif ($code === '42s02' || strpos($msg, 'base table') !== false || strpos($msg, "doesn't exist") !== false) {
+                        $error = 'Sign up is unavailable because the database tables are not set up yet. Please run sql/schema.sql on your MySQL database (or run: php scripts/init-db.php).';
+                      } elseif (strpos($msg, 'access denied') !== false || strpos($msg, 'sqlstate[28000]') !== false) {
+                        $error = 'Sign up is unavailable because the database credentials are invalid. Please check DB_USER/DB_PASS (or includes/config.local.php).';
+                      } elseif (strpos($msg, 'duplicate') !== false || strpos($msg, 'uniq_users_email') !== false) {
+                        $error = 'That email is already registered. Please log in.';
+                        $activeTab = 'register';
+                      } elseif (strpos($msg, 'uniq_users_username') !== false) {
+                        $error = 'That username is already taken. Please choose another.';
+                      } elseif (strpos($msg, 'not configured') !== false || strpos($msg, 'configuration is missing') !== false) {
+                        $error = 'Sign up is unavailable because the database is not configured. Please set DB_* environment variables or update includes/config.local.php.';
+                      } else {
+                        $error = 'Sign up is temporarily unavailable. Please try again later.';
+                      }
+                }
+            }
+            if ($error !== '') $activeTab = 'register';
+    } else {
 
     $email = trim((string) ($_POST['email'] ?? ''));
     $password = (string) ($_POST['password'] ?? '');
@@ -97,6 +228,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       }
         }
     }
+    }
 }
 
 $redirectValue = safe_redirect_target(is_string($redirectParam) ? $redirectParam : '', $redirectFallback);
@@ -127,7 +259,7 @@ $redirectValue = safe_redirect_target(is_string($redirectParam) ? $redirectParam
       --gysj-surface: #ffffff;
       --gysj-surface-soft: #f8f8f5;
       --gysj-accent: #f0b429;
-      --gysj-accent-dark: #d79b00;
+      --gysj-accent-dark: #8a5a00; /* Darker for WCAG contrast */
       --gysj-accent-soft: #fff6d8;
     }
 
@@ -203,9 +335,7 @@ $redirectValue = safe_redirect_target(is_string($redirectParam) ? $redirectParam
     }
 
     .field .input-wrap {
-      background: #f8fafc;
       position: relative;
-      padding-right: 44px;
     }
 
     .field .input-wrap i,
@@ -237,7 +367,12 @@ $redirectValue = safe_redirect_target(is_string($redirectParam) ? $redirectParam
 
     .field input {
       color: var(--gysj-text-primary);
-      background: transparent;
+      background: #f8fafc;
+      border: 1px solid var(--gysj-border) !important;
+      border-radius: 4px !important;
+      padding-right: 44px !important;
+      width: 100%;
+      box-sizing: border-box;
     }
 
     .field input:focus,
@@ -245,7 +380,7 @@ $redirectValue = safe_redirect_target(is_string($redirectParam) ? $redirectParam
     .btn-primary:focus-visible,
     .btn-admin:focus-visible,
     .role-btn:focus-visible {
-      outline: 3px solid rgba(215, 155, 0, 0.24);
+      outline: 3px solid var(--gysj-text-primary);
       outline-offset: 2px;
     }
 
@@ -338,7 +473,6 @@ $redirectValue = safe_redirect_target(is_string($redirectParam) ? $redirectParam
     .role-card,
     .admin-note,
     .faq-item,
-    .field .input-wrap,
     .btn-primary,
     .btn-admin,
     .selected-badge {
@@ -489,6 +623,115 @@ $redirectValue = safe_redirect_target(is_string($redirectParam) ? $redirectParam
         padding-right: 14px;
       }
     }
+  
+    .signup-embedded .field-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 15px;
+    }
+    @media (max-width: 768px) {
+      .signup-embedded .field-grid {
+        grid-template-columns: 1fr;
+        gap: 0;
+      }
+    }
+    .signup-embedded .field {
+      margin-bottom: 15px;
+    }
+
+    .signup-embedded .field-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 15px;
+    }
+    @media (max-width: 768px) {
+      .signup-embedded .field-grid {
+        grid-template-columns: 1fr;
+        gap: 0;
+      }
+    }
+    .signup-embedded .field {
+      margin-bottom: 15px;
+    }
+    .progress-container {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 30px;
+      position: relative;
+    }
+    .progress-container::before {
+      content: '';
+      background-color: var(--gysj-border);
+      position: absolute;
+      top: 50%;
+      left: 0;
+      transform: translateY(-50%);
+      height: 4px;
+      width: 100%;
+      z-index: 1;
+    }
+    .progress-bar {
+      background-color: var(--gysj-accent);
+      position: absolute;
+      top: 50%;
+      left: 0;
+      transform: translateY(-50%);
+      height: 4px;
+      width: 0%;
+      z-index: 1;
+      transition: 0.4s ease;
+    }
+    .step-indicator {
+      background-color: var(--gysj-surface);
+      color: var(--gysj-text-secondary);
+      border: 3px solid var(--gysj-border);
+      border-radius: 50%;
+      height: 35px;
+      width: 35px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      z-index: 2;
+      transition: 0.4s ease;
+      position: relative;
+    }
+    .step-indicator.active {
+      border-color: var(--gysj-accent);
+      color: var(--gysj-text-primary);
+      background-color: var(--gysj-accent-soft);
+    }
+    .step-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .btn-secondary {
+      background: #eef0f3;
+      border: 1px solid var(--gysj-border);
+      color: var(--gysj-text-secondary);
+      padding: 10px 18px;
+      cursor: pointer;
+    }
+    .btn-secondary:hover {
+      background: #e5e7eb;
+      color: var(--gysj-text-primary);
+    }
+    .form-step {
+      animation: fadeIn 0.4s;
+    }
+    .form-step h3 {
+      font-size: 18px;
+      margin-bottom: 15px;
+      color: var(--gysj-text-primary);
+      border-bottom: 1px solid var(--gysj-border);
+      padding-bottom: 8px;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
   </style>
   <script src="js/modernizr-3.5.0.min.js"></script>
 </head>
@@ -509,51 +752,69 @@ $redirectValue = safe_redirect_target(is_string($redirectParam) ? $redirectParam
 
         <div class="collapse navbar-collapse w-100 mt-3 gysj-nav-links" id="navbarSupportedContent">
           <ul class="navbar-nav mx-auto">
-            <li class="nav-item">
-              <a class="nav-link" href="index.php">Home</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="publication.php">Publication</a>
-            </li>
-            <li class="nav-item ">
-              <a class="nav-link" href="editorial-board.php">Editorial Board</a>
-            </li>
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="dropdownMenuButton2" data-toggle="dropdown"
-                aria-haspopup="true" aria-expanded="false">About Us</a>
-              <div class="dropdown-menu" aria-labelledby="dropdownMenuButton2">
-                <a class="dropdown-item" href="our-founders.php">Our Founders</a>
-                <a class="dropdown-item" href="our-mission.php">Our Mission</a>
-                <a class="dropdown-item" href="our-funding.php">Our Funding</a>
-              </div>
-            </li>
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="dropdownMenuButton3" data-toggle="dropdown"
-                aria-haspopup="true" aria-expanded="false">Paper Submissions</a>
-              <div class="dropdown-menu" aria-labelledby="dropdownMenuButton3">
-                <a class="dropdown-item" href="user-dashboard.php?view=submit">Online Submission</a>
-                <a class="dropdown-item" href="call-for-paper.php">Call for Paper</a>
-                <a class="dropdown-item" href="authorguidelines.php">Guidelines for authors</a>
-                <a class="dropdown-item" href="copyright.php">Copyright</a>
-              </div>
-            </li>
-            <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="dropdownSupport" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Support GYSJ</a>
+                        <li class="nav-item <?php echo basename($_SERVER['PHP_SELF']) == 'index.php' ? 'active' : ''; ?>">
+                            <a class="nav-link" href="index.php">Home</a>
+                        </li>
+                        <li class="nav-item <?php echo basename($_SERVER['PHP_SELF']) == 'publication.php' ? 'active' : ''; ?>">
+                            <a class="nav-link" href="publication.php">Publications</a>
+                        </li>
+                        <li class="nav-item dropdown <?php echo in_array(basename($_SERVER['PHP_SELF']), ['user-dashboard.php', 'call-for-paper.php', 'authorguidelines.php', 'copyright.php']) ? 'active' : ''; ?>">
+                            <a class="nav-link dropdown-toggle" href="#" id="dropdownMenuButton3" data-toggle="dropdown"
+                                aria-haspopup="true" aria-expanded="false">Paper Submissions</a>
+                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton3">
+                                <a class="dropdown-item" href="user-dashboard.php?view=submit">Online Submission</a>
+                                <a class="dropdown-item" href="call-for-paper.php">Call for Paper</a>
+                                <a class="dropdown-item" href="authorguidelines.php">Guidelines for authors</a>
+                                <a class="dropdown-item" href="copyright.php">Copyright</a>
+                            </div>
+                        </li>
+                        <li class="nav-item dropdown <?php echo in_array(basename($_SERVER['PHP_SELF']), ['our-founders.php', 'our-mission.php', 'our-funding.php']) ? 'active' : ''; ?>">
+                            <a class="nav-link dropdown-toggle" href="#" id="dropdownMenuButton2" data-toggle="dropdown"
+                                aria-haspopup="true" aria-expanded="false">About Us</a>
+                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton2">
+                                <a class="dropdown-item" href="our-founders.php">Our Founders</a>
+                                <a class="dropdown-item" href="our-mission.php">Our Mission</a>
+                                <a class="dropdown-item" href="our-funding.php">Our Funding</a>
+                            </div>
+                        </li>
+                        <li class="nav-item dropdown <?php echo in_array(basename($_SERVER['PHP_SELF']), ['editorial-board.php', 'editorial-members.php']) ? 'active' : ''; ?>">
+                            <a class="nav-link dropdown-toggle" href="#" id="dropdownEditorialBoard" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Editorial Board</a>
+                            <div class="dropdown-menu" aria-labelledby="dropdownEditorialBoard">
+                                <a class="dropdown-item" href="editorial-board.php">About the Board</a>
+                                <a class="dropdown-item" href="editorial-members.php">Members</a>
+                            </div>
+                        </li>
+                        <li class="nav-item dropdown <?php echo in_array(basename($_SERVER['PHP_SELF']), ['contribute.php', 'partners.php']) ? 'active' : ''; ?>">
+                            <a class="nav-link dropdown-toggle" href="#" id="dropdownSupport" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Support Us</a>
                             <div class="dropdown-menu" aria-labelledby="dropdownSupport">
                                 <a class="dropdown-item" href="contribute.php">Contribute</a>
                                 <a class="dropdown-item" href="partners.php">Partners</a>
                             </div>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="contact.php">Contact Us</a>
+                        <li class="nav-item <?php echo basename($_SERVER['PHP_SELF']) == 'contact.php' ? 'active' : ''; ?>">
+                            <a class="nav-link" href="contact.php">Contact</a>
                         </li>
 
-            <li class="nav-item">
-              <a class="nav-link btn btn-primary btn-sm text-white px-3" href="login.php" style="margin-top:4px; margin-left:8px;">Login / Sign Up</a>
-            </li>
-          </ul>
-        </div>
-      </nav>
+                        <?php if (auth_is_logged_in()): $navUser = auth_current_user(); ?>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="accountMenu" data-toggle="dropdown"
+                                aria-haspopup="true" aria-expanded="false"><?php echo e(($navUser['name'] ?? '') !== '' ? $navUser['name'] : ($navUser['email'] ?? 'Account')); ?></a>
+                            <div class="dropdown-menu" aria-labelledby="accountMenu">
+                                <a class="dropdown-item" href="<?php echo e((($navUser['role'] ?? '') === 'admin') ? 'admin-dashboard.php' : 'user-dashboard.php'); ?>">Dashboard</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="account.php">Account Settings</a>
+                                <a class="dropdown-item" href="logout.php">Log Out</a>
+                            </div>
+                        </li>
+                        <?php else: ?>
+                        <li class="nav-item">
+                            <a class="nav-link btn btn-primary btn-sm text-white px-3" href="login.php"
+                                style="margin-top:4px; margin-left:8px;">Login / Sign Up</a>
+                        </li>
+                        <?php endif; ?>
+                    </ul>
+                </div>
+            </nav>
     </div>
   </div>
 
@@ -561,34 +822,33 @@ $redirectValue = safe_redirect_target(is_string($redirectParam) ? $redirectParam
     <div class="login-page-title">Login</div>
     <div class="login-card">
       <div class="page-tabs">
-        <div class="page-tab active" onclick="switchTab('login', this)">Sign in</div>
-        <div class="page-tab" onclick="switchTab('register', this)">Create account</div>
+        <div class="page-tab <?php echo $activeTab === 'login' ? 'active' : ''; ?>" onclick="switchTab('login', this)">Sign in</div>
+        <div class="page-tab <?php echo $activeTab === 'register' ? 'active' : ''; ?>" onclick="switchTab('register', this)">Create account</div>
       </div>
 
       <div class="login-card-body">
-        <div id="login" class="tab-panel active">
+      <?php if ($error !== ''): ?>
+        <div class="alert alert-danger" role="alert" style="margin-bottom: 15px;"><?php echo e($error); ?></div>
+      <?php endif; ?>
+        <div id="login" class="tab-panel <?php echo $activeTab === 'login' ? 'active' : ''; ?>">
           <div class="role-toggle">
             <button class="role-btn active" onclick="switchRole('author', this)" id="btn-author"><i class="fa fa-pencil" style="font-size:13px; margin-right:6px;"></i>Author</button>
             <button class="role-btn" onclick="switchRole('admin', this)" id="btn-admin"><i class="fa fa-shield" style="font-size:13px; margin-right:6px;"></i>Editor / Admin</button>
           </div>
-
-      <?php if ($error !== ''): ?>
-        <div class="alert alert-danger" role="alert"><?php echo e($error); ?></div>
-      <?php endif; ?>
 
       <div id="author-form">
         <form method="post" action="login.php">
           <?php echo csrf_field(); ?>
           <input type="hidden" name="redirect" value="<?php echo e($redirectValue); ?>">
           <div class="field">
-            <label>Email address</label>
+            <label for="email-author">Email address</label>
             <div class="input-wrap">
               <i class="fa fa-envelope"></i>
               <input type="email" name="email" id="email-author" placeholder="you@example.com" required />
             </div>
           </div>
           <div class="field">
-            <label>Password</label>
+            <label for="pw-author">Password</label>
             <div class="input-wrap">
               <i class="fa fa-lock"></i>
               <input type="password" name="password" id="pw-author" placeholder="Enter your password" required />
@@ -612,14 +872,14 @@ $redirectValue = safe_redirect_target(is_string($redirectParam) ? $redirectParam
           <?php echo csrf_field(); ?>
           <input type="hidden" name="redirect" value="<?php echo e($redirectValue); ?>">
           <div class="field" style="margin-top:1.25rem;">
-            <label>Institutional email</label>
+            <label for="email-admin">Institutional email</label>
             <div class="input-wrap">
               <i class="fa fa-envelope"></i>
               <input type="email" name="email" id="email-admin" placeholder="you@institution.edu" required />
             </div>
           </div>
           <div class="field">
-            <label>Password</label>
+            <label for="pw-admin">Password</label>
             <div class="input-wrap">
               <i class="fa fa-lock"></i>
               <input type="password" name="password" id="pw-admin" placeholder="Enter your password" required />
@@ -632,7 +892,7 @@ $redirectValue = safe_redirect_target(is_string($redirectParam) ? $redirectParam
       </div>
         </div>
 
-          <div id="register" class="tab-panel">
+          <div id="register" class="tab-panel <?php echo $activeTab === 'register' ? 'active' : ''; ?>">
             <div class="create-header">
               <h2>Create your account</h2>
               <p>Choose your account type to get started submitting or reviewing research.</p>
@@ -652,176 +912,191 @@ $redirectValue = safe_redirect_target(is_string($redirectParam) ? $redirectParam
               </div>
             </div>
             <div id="reg-author-fields">
-              <form method="post" action="signup.php" class="signup-embedded">
+              <form method="post" action="login.php" class="signup-embedded" id="multiStepForm">
           <?php echo csrf_field(); ?>
+          <input type="hidden" name="register_submit" value="1">
 
-          <div class="field">
-            <label for="username">Username</label>
-            <div class="input-wrap">
-              <i class="fa fa-id-badge"></i>
-              <input type="text" id="username" name="username" placeholder="username" required />
-            </div>
-            <small class="form-text text-muted">Use a professional ID like tuhin.sarkar</small>
+          <div class="progress-container">
+            <div class="progress-bar" id="progressBar"></div>
+            <div class="step-indicator active">1</div>
+            <div class="step-indicator">2</div>
+            <div class="step-indicator">3</div>
+            <div class="step-indicator">4</div>
           </div>
 
-          <div class="field">
-            <label for="email">Email</label>
-            <div class="input-wrap">
-              <i class="fa fa-envelope"></i>
-              <input type="email" id="email" name="email" placeholder="you@example.com" required />
+          <div class="form-step active" id="step-1">
+            <h3>Account Details</h3>
+            <div class="field-grid">
+              <div class="field">
+                <label for="username">Username</label>
+                <div class="input-wrap">
+                  <i class="fa fa-id-badge"></i>
+                  <input type="text" id="username" name="username" placeholder="e.g. john.doe" value="<?php echo e($username); ?>" required />
+                </div>
+              </div>
+              <div class="field">
+                <label for="email">Email</label>
+                <div class="input-wrap">
+                  <i class="fa fa-envelope"></i>
+                  <input type="email" id="email" name="email" placeholder="e.g. you@example.com" value="<?php echo e($email); ?>" required />
+                </div>
+              </div>
             </div>
-          </div>
-
-          <div class="field">
-            <label for="phone">Phone</label>
-            <div class="input-wrap">
-              <i class="fa fa-phone"></i>
-              <input type="tel" id="phone" name="phone" placeholder="+91XXXXXXXXXX" required />
+            <div class="field-grid">
+              <div class="field">
+                <label for="password_reg">Password</label>
+                <div class="input-wrap">
+                  <i class="fa fa-lock"></i>
+                  <input type="password" id="password_reg" name="password" placeholder="Minimum 8 characters" required />
+                  <button class="eye-btn" type="button" onclick="togglePw('password_reg', this)"><i class="fa fa-eye"></i></button>
+                </div>
+              </div>
+              <div class="field">
+                <label for="password2_reg">Confirm password</label>
+                <div class="input-wrap">
+                  <i class="fa fa-lock"></i>
+                  <input type="password" id="password2_reg" name="password2" placeholder="Confirm password" required />
+                </div>
+              </div>
             </div>
-          </div>
-
-          <div class="field">
-            <label for="country">Country</label>
-            <div class="input-wrap">
-              <i class="fa fa-globe"></i>
-              <input type="text" id="country" name="country" placeholder="Country" required />
-            </div>
-          </div>
-
-          <div class="field">
-            <label for="password">Password</label>
-            <div class="input-wrap">
-              <i class="fa fa-lock"></i>
-              <input type="password" id="password_reg" name="password" placeholder="Minimum 8 characters" required />
-              <button class="eye-btn" type="button" onclick="togglePw('password_reg', this)"><i class="fa fa-eye"></i></button>
-            </div>
-          </div>
-
-          <div class="field">
-            <label for="password2">Confirm password</label>
-            <div class="input-wrap">
-              <i class="fa fa-lock"></i>
-              <input type="password" id="password2_reg" name="password2" placeholder="Confirm password" required />
-            </div>
-          </div>
-
-          <hr>
-          <div class="field">
-            <label for="title">Title <small class="text-muted">(optional)</small></label>
-            <div class="input-wrap">
-              <i class="fa fa-id-card"></i>
-              <input type="text" id="title" name="title" placeholder="Mr./Dr." />
+            <div class="step-actions">
+              <button type="button" class="btn-primary" onclick="nextStep(1)">Next</button>
             </div>
           </div>
 
-          <div class="field">
-            <label>First name</label>
-            <div class="input-wrap">
-              <i class="fa fa-user"></i>
-              <input type="text" id="first_name" name="first_name" required />
+          <div class="form-step" id="step-2" style="display:none;">
+            <h3>Personal Information</h3>
+            <div class="field-grid">
+              <div class="field">
+                <label for="title">Title <small class="text-muted">(optional)</small></label>
+                <div class="input-wrap">
+                  <i class="fa fa-id-card"></i>
+                  <input type="text" id="title" name="title" placeholder="Mr./Dr." value="<?php echo e($title); ?>" />
+                </div>
+              </div>
+              <div class="field">
+                <label for="first_name">First name</label>
+                <div class="input-wrap">
+                  <i class="fa fa-user"></i>
+                  <input type="text" id="first_name" name="first_name" placeholder="e.g. John" value="<?php echo e($firstName); ?>" required />
+                </div>
+              </div>
+            </div>
+            <div class="field-grid">
+              <div class="field">
+                <label for="middle_name">Middle name <small class="text-muted">(optional)</small></label>
+                <div class="input-wrap">
+                  <i class="fa fa-user"></i>
+                  <input type="text" id="middle_name" name="middle_name" placeholder="e.g. Robert" value="<?php echo e($middleName); ?>" />
+                </div>
+              </div>
+              <div class="field">
+                <label for="last_name">Last name</label>
+                <div class="input-wrap">
+                  <i class="fa fa-user"></i>
+                  <input type="text" id="last_name" name="last_name" placeholder="e.g. Doe" value="<?php echo e($lastName); ?>" required />
+                </div>
+              </div>
+            </div>
+            <div class="field-grid">
+              <div class="field">
+                <label for="phone">Phone</label>
+                <div class="input-wrap">
+                  <i class="fa fa-phone"></i>
+                  <input type="tel" id="phone" name="phone" placeholder="e.g. +1 234 567 8900" value="<?php echo e($phone); ?>" required />
+                </div>
+              </div>
+              <div class="field">
+                <label for="country">Country</label>
+                <div class="input-wrap">
+                  <i class="fa fa-globe"></i>
+                  <input type="text" id="country" name="country" placeholder="e.g. India" value="<?php echo e($country); ?>" required />
+                </div>
+              </div>
+            </div>
+            <div class="step-actions">
+              <button type="button" class="btn-secondary" onclick="prevStep(2)">Previous</button>
+              <button type="button" class="btn-primary" onclick="nextStep(2)">Next</button>
             </div>
           </div>
 
-          <div class="field">
-            <label>Middle name <small class="text-muted">(optional)</small></label>
-            <div class="input-wrap">
-              <i class="fa fa-user"></i>
-              <input type="text" id="middle_name" name="middle_name" />
+          <div class="form-step" id="step-3" style="display:none;">
+            <h3>Education / Institution</h3>
+            <div class="field-grid">
+              <div class="field">
+                <label for="institution">Institution/School</label>
+                <div class="input-wrap">
+                  <i class="fa fa-university"></i>
+                  <input type="text" id="institution" name="institution" placeholder="e.g. Oxford University" value="<?php echo e($institution); ?>" required />
+                </div>
+              </div>
+              <div class="field">
+                <label for="grade_level">Grade/Year Level</label>
+                <div class="input-wrap">
+                  <i class="fa fa-graduation-cap"></i>
+                  <input type="text" id="grade_level" name="grade_level" placeholder="e.g. Undergraduate" value="<?php echo e($gradeLevel); ?>" required />
+                </div>
+              </div>
+            </div>
+            <div class="field-grid">
+              <div class="field">
+                <label for="school_email">School Email <small class="text-muted">(optional)</small></label>
+                <div class="input-wrap">
+                  <i class="fa fa-envelope-open"></i>
+                  <input type="email" id="school_email" name="school_email" placeholder="e.g. student@school.edu" value="<?php echo e($schoolEmail); ?>" />
+                </div>
+                <div style="margin-top: 8px; display: flex; align-items: center; gap: 8px;">
+                  <input type="checkbox" id="no_school_email" onchange="document.getElementById('school_email').disabled = this.checked; if(this.checked) document.getElementById('school_email').value='';" style="width: auto; margin: 0;">
+                  <label for="no_school_email" style="margin: 0; font-size: 13px; font-weight: normal; color: var(--gysj-text-secondary); cursor: pointer;">My school doesn't provide an email</label>
+                </div>
+              </div>
+              <div class="field">
+                <label for="admission_number">Admission/ERP Number <small class="text-muted">(optional)</small></label>
+                <div class="input-wrap">
+                  <i class="fa fa-hashtag"></i>
+                  <input type="text" id="admission_number" name="admission_number" placeholder="e.g. 12345678" value="<?php echo e($admissionNumber); ?>" />
+                </div>
+              </div>
+            </div>
+            <div class="step-actions">
+              <button type="button" class="btn-secondary" onclick="prevStep(3)">Previous</button>
+              <button type="button" class="btn-primary" onclick="nextStep(3)">Next</button>
             </div>
           </div>
 
-          <div class="field">
-            <label>Last name</label>
-            <div class="input-wrap">
-              <i class="fa fa-user"></i>
-              <input type="text" id="last_name" name="last_name" required />
+          <div class="form-step" id="step-4" style="display:none;">
+            <h3>Address</h3>
+            <div class="field-grid">
+              <div class="field">
+                <label for="city">City</label>
+                <div class="input-wrap">
+                  <i class="fa fa-map-marker"></i>
+                  <input type="text" id="city" name="city" placeholder="e.g. New York" value="<?php echo e($city); ?>" required />
+                </div>
+              </div>
+              <div class="field">
+                <label for="state">State/Province</label>
+                <div class="input-wrap">
+                  <i class="fa fa-map"></i>
+                  <input type="text" id="state" name="state" placeholder="e.g. NY" value="<?php echo e($state); ?>" required />
+                </div>
+              </div>
+            </div>
+            <div class="field-grid">
+              <div class="field">
+                <label for="postal_code">Postal Code</label>
+                <div class="input-wrap">
+                  <i class="fa fa-mail-bulk"></i>
+                  <input type="text" id="postal_code" name="postal_code" placeholder="e.g. 10001" value="<?php echo e($postalCode); ?>" required />
+                </div>
+              </div>
+              <div></div>
+            </div>
+            <div class="step-actions">
+              <button type="button" class="btn-secondary" onclick="prevStep(4)">Previous</button>
+              <button type="submit" class="btn-primary btn-author">Create account</button>
             </div>
           </div>
-
-          <hr>
-          <div class="field">
-            <label>Position</label>
-            <div class="input-wrap">
-              <i class="fa fa-briefcase"></i>
-              <input type="text" id="position" name="position" placeholder="Student/Researcher" required />
-            </div>
-          </div>
-
-          <div class="field">
-            <label>Institution</label>
-            <div class="input-wrap">
-              <i class="fa fa-university"></i>
-              <input type="text" id="institution" name="institution" required />
-            </div>
-          </div>
-
-          <div class="field">
-            <label>Department <small class="text-muted">(optional)</small></label>
-            <div class="input-wrap">
-              <i class="fa fa-building"></i>
-              <input type="text" id="department" name="department" />
-            </div>
-          </div>
-
-          <hr>
-          <div class="field">
-            <label>Grade/Year Level</label>
-            <div class="input-wrap">
-              <i class="fa fa-graduation-cap"></i>
-              <input type="text" id="grade_level" name="grade_level" required />
-            </div>
-          </div>
-
-          <div class="field">
-            <label>School/College Name</label>
-            <div class="input-wrap">
-              <i class="fa fa-school"></i>
-              <input type="text" id="school_name" name="school_name" required />
-            </div>
-          </div>
-
-          <div class="field">
-            <label>School Email <small class="text-muted">(optional)</small></label>
-            <div class="input-wrap">
-              <i class="fa fa-envelope-open"></i>
-              <input type="email" id="school_email" name="school_email" />
-            </div>
-          </div>
-
-          <div class="field">
-            <label>Admission/ERP Number <small class="text-muted">(optional)</small></label>
-            <div class="input-wrap">
-              <i class="fa fa-hashtag"></i>
-              <input type="text" id="admission_number" name="admission_number" />
-            </div>
-          </div>
-
-          <hr>
-          <div class="field">
-            <label>City</label>
-            <div class="input-wrap">
-              <i class="fa fa-map-marker"></i>
-              <input type="text" id="city" name="city" required />
-            </div>
-          </div>
-
-          <div class="field">
-            <label>State/Province</label>
-            <div class="input-wrap">
-              <i class="fa fa-map"></i>
-              <input type="text" id="state" name="state" required />
-            </div>
-          </div>
-
-          <div class="field">
-            <label>Postal Code</label>
-            <div class="input-wrap">
-              <i class="fa fa-mail-bulk"></i>
-              <input type="text" id="postal_code" name="postal_code" required />
-            </div>
-          </div>
-
-          <button type="submit" class="btn-primary btn-author">Create account</button>
         </form>
       </div>
 
@@ -921,6 +1196,46 @@ $redirectValue = safe_redirect_target(is_string($redirectParam) ? $redirectParam
       switchRole('author', document.getElementById('btn-author'));
       selectCard('author');
     });
+  
+    function updateProgress(currentStep) {
+      var steps = document.querySelectorAll('.step-indicator');
+      var progress = document.getElementById('progressBar');
+      steps.forEach(function(step, idx) {
+        if (idx < currentStep) {
+          step.classList.add('active');
+        } else {
+          step.classList.remove('active');
+        }
+      });
+      progress.style.width = ((currentStep - 1) / (steps.length - 1)) * 100 + '%';
+    }
+
+    function validateStep(step) {
+      var stepEl = document.getElementById('step-' + step);
+      var inputs = stepEl.querySelectorAll('input[required]');
+      var valid = true;
+      inputs.forEach(function(inp) {
+        if (!inp.checkValidity()) {
+          inp.reportValidity();
+          valid = false;
+        }
+      });
+      return valid;
+    }
+
+    function nextStep(step) {
+      if (!validateStep(step)) return;
+      document.getElementById('step-' + step).style.display = 'none';
+      document.getElementById('step-' + (step + 1)).style.display = 'block';
+      updateProgress(step + 1);
+    }
+
+    function prevStep(step) {
+      document.getElementById('step-' + step).style.display = 'none';
+      document.getElementById('step-' + (step - 1)).style.display = 'block';
+      updateProgress(step - 1);
+    }
+
   </script>
 </body>
 

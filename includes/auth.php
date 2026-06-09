@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/helpers.php';
 
-/** @var array{id:int,name:string,email:string,role:string}|null */
+/** @var array{id:int,name:string,email:string,role:string,admin_role:string|null}|null */
 function auth_current_user(): ?array
 {
     static $cached = null;
@@ -28,7 +28,7 @@ function auth_current_user(): ?array
 
     try {
         $pdo = db();
-        $stmt = $pdo->prepare('SELECT id, name, email, role FROM users WHERE id = ? LIMIT 1');
+        $stmt = $pdo->prepare('SELECT id, name, email, role, admin_role FROM users WHERE id = ? LIMIT 1');
         $stmt->execute([$userId]);
         $row = $stmt->fetch();
         if (!is_array($row)) {
@@ -41,6 +41,7 @@ function auth_current_user(): ?array
             'name' => (string) $row['name'],
             'email' => (string) $row['email'],
             'role' => (string) $row['role'],
+            'admin_role' => $row['admin_role'] !== null ? (string) $row['admin_role'] : 'reviewer',
         ];
 
         return $cached;

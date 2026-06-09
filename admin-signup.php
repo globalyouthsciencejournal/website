@@ -281,6 +281,7 @@ try {
       {
         $tables = ['admin_applications', 'users'];
         $columnsToAdd = [
+          'admin_role' => "VARCHAR(50) NULL DEFAULT 'reviewer'",
           'assigned_journals_json' => 'TEXT NULL',
           'country' => 'VARCHAR(100) NULL',
           'institution' => 'VARCHAR(255) NULL',
@@ -407,6 +408,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $pdo instanceof PDO) {
   $reviewerReasonText = trim((string) ($_POST['reviewer_reason_text'] ?? ''));
   $profileLinks = trim((string) ($_POST['reviewer_profile_links'] ?? ''));
   $weeklyAvailability = trim((string) ($_POST['reviewer_weekly_availability'] ?? ''));
+  $adminRole = trim((string) ($_POST['admin_role'] ?? ''));
   $declarationConfirmed = isset($_POST['declaration_confirmed']) ? 1 : 0;
 
   
@@ -423,6 +425,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $pdo instanceof PDO) {
   $postedExperienceText = $experienceText;
   $postedReviewerReasonText = $reviewerReasonText;
   $postedProfileLinks = $profileLinks;
+  $postedAdminRole = $adminRole;
   $postedDeclarationConfirmed = $declarationConfirmed === 1;
 
   $uploadError = '';
@@ -431,8 +434,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $pdo instanceof PDO) {
   $createdUploadPaths = [];
   $shouldStoreFiles = true;
 
-  if ($name === '' || $email === '' || $password === '' || $country === '' || $institution === '' || $gradeLevel === '' || $experienceText === '' || $reviewerReasonText === '' || $weeklyAvailability === '') {
+  if ($name === '' || $email === '' || $password === '' || $country === '' || $institution === '' || $gradeLevel === '' || $experienceText === '' || $reviewerReasonText === '' || $weeklyAvailability === '' || $adminRole === '') {
     $error = 'Please fill in all required fields.';
+  } elseif (!in_array($adminRole, ['junior_editor', 'reviewer', 'editor_in_chief', 'all'], true)) {
+    $error = 'Please select a valid role applying for.';
   } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
     $error = 'Please enter a valid email.';
   } elseif (strlen($password) < 8) {
@@ -609,6 +614,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $pdo instanceof PDO) {
               }
 
               $userId = (int) $pdo->lastInsertId();
+              if ($userId > 0) {
+                $stmtRole = $pdo->prepare('UPDATE users SET admin_role = ? WHERE id = ?');
+                $stmtRole->execute([$adminRole, $userId]);
+              }
               auth_login_user($userId);
               redirect('admin-dashboard.php');
             }
@@ -730,6 +739,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $pdo instanceof PDO) {
                 ]);
               }
 
+              $appId = (int) $pdo->lastInsertId();
+              if ($appId > 0) {
+                $stmtRole = $pdo->prepare('UPDATE admin_applications SET admin_role = ? WHERE id = ?');
+                $stmtRole->execute([$adminRole, $appId]);
+              }
               $success = 'Your admin application has been submitted. An existing admin must approve it before you can log in.';
             }
           }
@@ -1193,9 +1207,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $pdo instanceof PDO) {
                         <li class="nav-item">
                             <a class="nav-link" href="publication.php">Publication</a>
                         </li>
-                        <li class="nav-item ">
-                            <a class="nav-link" href="editorial-board.php">Editorial Board</a>
-                        </li>
+                                    <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="dropdownEditorialBoard" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Editorial Board</a>
+              <div class="dropdown-menu" aria-labelledby="dropdownEditorialBoard">
+                <a class="dropdown-item" href="editorial-board.php">About the Board</a>
+                <a class="dropdown-item" href="editorial-members.php">Members</a>
+              </div>
+            </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="dropdownMenuButton2" data-toggle="dropdown"
                                 aria-haspopup="true" aria-expanded="false">About Us</a>
@@ -1342,6 +1360,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $pdo instanceof PDO) {
       <!-- STEP 3: Editorial Interests -->
       <div class="step-container" data-step="3">
         <h2 class="step-title">3. Editorial Interests</h2>
+
+        <div class="field-group">
+          <label>Role Applying For <span class="required">*</span></label>
+          <div class="chip-grid">
+            <label class="chip-label">
+              <input type="radio" name="admin_role" value="junior_editor" class="save-draft-rb" required <?php echo ((string) ($postedAdminRole ?? '')) === 'junior_editor' ? 'checked' : ''; ?>>
+              <span>Junior Editor</span>
+            </label>
+            <label class="chip-label">
+              <input type="radio" name="admin_role" value="reviewer" class="save-draft-rb" required <?php echo ((string) ($postedAdminRole ?? '')) === 'reviewer' ? 'checked' : ''; ?>>
+              <span>Reviewer</span>
+            </label>
+            <label class="chip-label">
+              <input type="radio" name="admin_role" value="editor_in_chief" class="save-draft-rb" required <?php echo ((string) ($postedAdminRole ?? '')) === 'editor_in_chief' ? 'checked' : ''; ?>>
+              <span>Editor in Chief</span>
+            </label>
+            <label class="chip-label">
+              <input type="radio" name="admin_role" value="all" class="save-draft-rb" required <?php echo ((string) ($postedAdminRole ?? '')) === 'all' ? 'checked' : ''; ?>>
+              <span>All-Rounder</span>
+            </label>
+          </div>
+          <div class="error-text">Please select a role.</div>
+        </div>
         
         <div class="field-group">
           <label>Journal Specializations <span class="required">*</span></label>
@@ -1625,6 +1666,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $pdo instanceof PDO) {
             document.getElementById('error-availability').closest('.field-group').classList.add('has-error');
             isValid = false;
           }
+
+          const roleChecked = container.querySelectorAll('input[name="admin_role"]:checked').length;
+          if (roleChecked === 0) {
+            const roleFieldGroup = container.querySelector('input[name="admin_role"]').closest('.field-group');
+            roleFieldGroup.classList.add('has-error');
+            isValid = false;
+          }
         }
 
         // Step 4 Specific: Char limits
@@ -1656,6 +1704,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $pdo instanceof PDO) {
         if (validateStep(currentStep)) {
           currentStep++;
           updateUI();
+        } else {
+          const firstError = document.querySelector(`.step-container[data-step="${currentStep}"] .has-error`);
+          if (firstError) {
+            firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
         }
       });
 
@@ -1669,6 +1722,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $pdo instanceof PDO) {
       form.addEventListener('submit', (e) => {
         if (!validateStep(currentStep)) {
           e.preventDefault();
+          const firstError = document.querySelector(`.step-container[data-step="${currentStep}"] .has-error`);
+          if (firstError) {
+            firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
         } else {
           // Clear draft on successful submit
           localStorage.removeItem(draftKey);
@@ -1702,9 +1759,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $pdo instanceof PDO) {
         if(allFieldsCb.checked) {
           allFieldsCb.dispatchEvent(new Event('change'));
         }
-      }
-});
-        });
       }
     });
 

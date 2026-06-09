@@ -59,6 +59,44 @@ function db(): PDO
         return $pdo;
     }
 
+    if ($driver === 'pgsql' || $driver === 'cockroachdb') {
+        $host = (string) ($db['host'] ?? 'localhost');
+        $port = (int) ($db['port'] ?? 26257);
+        $name = (string) ($db['name'] ?? '');
+        $user = (string) ($db['user'] ?? '');
+        $pass = (string) ($db['pass'] ?? '');
+
+        if ($name === '' || $user === '') {
+            throw new RuntimeException('Database name/user not configured.');
+        }
+
+        // For CockroachDB, we may need sslmode
+        $sslmode = (string) ($db['sslmode'] ?? 'verify-full');
+        $certPath = str_replace('\\', '/', __DIR__ . '/cockroach-ca.crt');
+        
+        $dsn = sprintf(
+            "pgsql:host=%s;port=%d;dbname='%s';sslmode=%s;sslrootcert='%s'",
+            $host,
+            $port,
+            $name,
+            $sslmode,
+            $certPath
+        );
+
+        $pdo = new PDO(
+            $dsn,
+            $user,
+            $pass,
+            [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                PDO::ATTR_EMULATE_PREPARES => false,
+            ]
+        );
+
+        return $pdo;
+    }
+
     // Default: MySQL
     $host = (string) ($db['host'] ?? 'localhost');
     $port = (int) ($db['port'] ?? 3306);

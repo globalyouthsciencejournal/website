@@ -475,6 +475,7 @@ function gysj_redesign_ensure_reviewer_columns(PDO $pdo): void
 {
   $tables = ['admin_applications', 'users'];
   $columnsToAdd = [
+    'admin_role' => "VARCHAR(50) NULL DEFAULT 'reviewer'",
     'assigned_journals_json' => 'TEXT NULL',
     'country' => 'VARCHAR(100) NULL',
     'institution' => 'VARCHAR(255) NULL',
@@ -997,11 +998,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $pdo instanceof PDO) {
   } elseif ($action === 'bulk_action') {
     $bulkType = (string) ($_POST['bulk_type'] ?? '');
     $submissionIds = $_POST['submission_ids'] ?? [];
+    $adminRole = $admin['admin_role'] ?? 'all';
     
     if (!is_array($submissionIds) || empty($submissionIds)) {
       $error = 'No submissions selected.';
     } elseif (!in_array($bulkType, ['accept', 'needs_edits', 'reject', 'delete'], true)) {
       $error = 'Invalid bulk action.';
+    } elseif ($bulkType === 'accept' && !in_array($adminRole, ['editor_in_chief', 'all'], true)) {
+      $error = 'You do not have permission to accept submissions.';
+    } elseif ($bulkType === 'reject' && !in_array($adminRole, ['reviewer', 'editor_in_chief', 'all'], true)) {
+      $error = 'You do not have permission to reject submissions.';
+    } elseif ($bulkType === 'delete' && !in_array($adminRole, ['all'], true)) {
+      $error = 'You do not have permission to delete submissions.';
     } else {
       $successCount = 0;
       $pdo->beginTransaction();
@@ -1106,8 +1114,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $pdo instanceof PDO) {
         exit;
     }
   } elseif ($action === 'delete_paper') {
+    $adminRole = $admin['admin_role'] ?? 'all';
     $submissionId = (string) ($_POST['submission_id'] ?? '');
-    if (!ctype_digit($submissionId)) {
+    if (!in_array($adminRole, ['all'], true)) {
+      $error = 'You do not have permission to delete submissions.';
+    } elseif (!ctype_digit($submissionId)) {
       $error = 'Invalid submission.';
     } else {
       $id = (int) $submissionId;
@@ -1155,6 +1166,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $pdo instanceof PDO) {
       }
     }
   } elseif (in_array($action, ['accept', 'accepted', 'reject', 'rejected', 'needs_edits', 'submitted', 'escalated'], true)) {
+    $adminRole = $admin['admin_role'] ?? 'all';
     $submissionId = (string) ($_POST['submission_id'] ?? '');
     $feedback = trim((string) ($_POST['comment'] ?? ''));
     $internalNote = trim((string) ($_POST['internal_note'] ?? ''));
@@ -1168,6 +1180,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $pdo instanceof PDO) {
 
     if (!ctype_digit($submissionId)) {
       $error = 'Invalid submission.';
+    } elseif ($submissionStatus === 'accepted' && !in_array($adminRole, ['editor_in_chief', 'all'], true)) {
+      $error = 'You do not have permission to accept submissions.';
+    } elseif ($submissionStatus === 'rejected' && !in_array($adminRole, ['reviewer', 'editor_in_chief', 'all'], true)) {
+      $error = 'You do not have permission to reject submissions.';
     } elseif ($feedback === '' && !in_array($action, ['submitted', 'escalated'], true)) {
       $error = 'Please write feedback for the author before submitting a decision.';
     } else {
@@ -1399,9 +1415,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $pdo instanceof PDO) {
       }
     }
   } elseif ($action === 'approve_admin' || $action === 'reject_admin') {
+    $adminRole = $admin['admin_role'] ?? 'all';
     $applicationId = (string) ($_POST['application_id'] ?? '');
 
-    if (!ctype_digit($applicationId)) {
+    if (!in_array($adminRole, ['editor_in_chief', 'all'], true)) {
+      $error = 'You do not have permission to manage admin applications.';
+    } elseif (!ctype_digit($applicationId)) {
       $error = 'Invalid application.';
     } else {
       $appId = (int) $applicationId;
@@ -3865,59 +3884,69 @@ if (!is_string($adminDirectoryJson)) {
 
         <div class="collapse navbar-collapse w-100 mt-3 gysj-nav-links" id="navbarSupportedContent">
           <ul class="navbar-nav mx-auto">
-            <li class="nav-item">
-              <a class="nav-link" href="index.php">Home</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="publication.php">Publication</a>
-            </li>
-            <li class="nav-item ">
-              <a class="nav-link" href="editorial-board.php">Editorial Board</a>
-            </li>
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="dropdownMenuButton2" data-toggle="dropdown"
-                aria-haspopup="true" aria-expanded="false">About Us</a>
-              <div class="dropdown-menu" aria-labelledby="dropdownMenuButton2">
-                <a class="dropdown-item" href="our-founders.php">Our Founders</a>
-                <a class="dropdown-item" href="our-mission.php">Our Mission</a>
-                <a class="dropdown-item" href="our-funding.php">Our Funding</a>
-              </div>
-            </li>
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="dropdownMenuButton3" data-toggle="dropdown"
-                aria-haspopup="true" aria-expanded="false">Paper Submissions</a>
-              <div class="dropdown-menu" aria-labelledby="dropdownMenuButton3">
-                <a class="dropdown-item" href="user-dashboard.php?view=submit">Online Submission</a>
-                <a class="dropdown-item" href="call-for-paper.php">Call for Paper</a>
-                <a class="dropdown-item" href="authorguidelines.php">Guidelines for authors</a>
-                <a class="dropdown-item" href="copyright.php">Copyright</a>
-              </div>
-            </li>
-            <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="dropdownSupport" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Support GYSJ</a>
+                        <li class="nav-item <?php echo basename($_SERVER['PHP_SELF']) == 'index.php' ? 'active' : ''; ?>">
+                            <a class="nav-link" href="index.php">Home</a>
+                        </li>
+                        <li class="nav-item <?php echo basename($_SERVER['PHP_SELF']) == 'publication.php' ? 'active' : ''; ?>">
+                            <a class="nav-link" href="publication.php">Publications</a>
+                        </li>
+                        <li class="nav-item dropdown <?php echo in_array(basename($_SERVER['PHP_SELF']), ['user-dashboard.php', 'call-for-paper.php', 'authorguidelines.php', 'copyright.php']) ? 'active' : ''; ?>">
+                            <a class="nav-link dropdown-toggle" href="#" id="dropdownMenuButton3" data-toggle="dropdown"
+                                aria-haspopup="true" aria-expanded="false">Paper Submissions</a>
+                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton3">
+                                <a class="dropdown-item" href="user-dashboard.php?view=submit">Online Submission</a>
+                                <a class="dropdown-item" href="call-for-paper.php">Call for Paper</a>
+                                <a class="dropdown-item" href="authorguidelines.php">Guidelines for authors</a>
+                                <a class="dropdown-item" href="copyright.php">Copyright</a>
+                            </div>
+                        </li>
+                        <li class="nav-item dropdown <?php echo in_array(basename($_SERVER['PHP_SELF']), ['our-founders.php', 'our-mission.php', 'our-funding.php']) ? 'active' : ''; ?>">
+                            <a class="nav-link dropdown-toggle" href="#" id="dropdownMenuButton2" data-toggle="dropdown"
+                                aria-haspopup="true" aria-expanded="false">About Us</a>
+                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton2">
+                                <a class="dropdown-item" href="our-founders.php">Our Founders</a>
+                                <a class="dropdown-item" href="our-mission.php">Our Mission</a>
+                                <a class="dropdown-item" href="our-funding.php">Our Funding</a>
+                            </div>
+                        </li>
+                        <li class="nav-item dropdown <?php echo in_array(basename($_SERVER['PHP_SELF']), ['editorial-board.php', 'editorial-members.php']) ? 'active' : ''; ?>">
+                            <a class="nav-link dropdown-toggle" href="#" id="dropdownEditorialBoard" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Editorial Board</a>
+                            <div class="dropdown-menu" aria-labelledby="dropdownEditorialBoard">
+                                <a class="dropdown-item" href="editorial-board.php">About the Board</a>
+                                <a class="dropdown-item" href="editorial-members.php">Members</a>
+                            </div>
+                        </li>
+                        <li class="nav-item dropdown <?php echo in_array(basename($_SERVER['PHP_SELF']), ['contribute.php', 'partners.php']) ? 'active' : ''; ?>">
+                            <a class="nav-link dropdown-toggle" href="#" id="dropdownSupport" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Support Us</a>
                             <div class="dropdown-menu" aria-labelledby="dropdownSupport">
                                 <a class="dropdown-item" href="contribute.php">Contribute</a>
                                 <a class="dropdown-item" href="partners.php">Partners</a>
                             </div>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="contact.php">Contact Us</a>
+                        <li class="nav-item <?php echo basename($_SERVER['PHP_SELF']) == 'contact.php' ? 'active' : ''; ?>">
+                            <a class="nav-link" href="contact.php">Contact</a>
                         </li>
 
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="accountMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <?php echo e($adminName !== '' ? $adminName : ($adminEmail !== '' ? $adminEmail : 'Admin')); ?>
-              </a>
-              <div class="dropdown-menu" aria-labelledby="accountMenu">
-                <a class="dropdown-item" href="user-dashboard.php">Dashboard</a>
-                <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="account.php">Account Settings</a>
-                <a class="dropdown-item" href="logout.php">Log Out</a>
-              </div>
-            </li>
-          </ul>
-        </div>
-      </nav>
+                        <?php if (auth_is_logged_in()): $navUser = auth_current_user(); ?>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="accountMenu" data-toggle="dropdown"
+                                aria-haspopup="true" aria-expanded="false"><?php echo e(($navUser['name'] ?? '') !== '' ? $navUser['name'] : ($navUser['email'] ?? 'Account')); ?></a>
+                            <div class="dropdown-menu" aria-labelledby="accountMenu">
+                                <a class="dropdown-item" href="<?php echo e((($navUser['role'] ?? '') === 'admin') ? 'admin-dashboard.php' : 'user-dashboard.php'); ?>">Dashboard</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="account.php">Account Settings</a>
+                                <a class="dropdown-item" href="logout.php">Log Out</a>
+                            </div>
+                        </li>
+                        <?php else: ?>
+                        <li class="nav-item">
+                            <a class="nav-link btn btn-primary btn-sm text-white px-3" href="login.php"
+                                style="margin-top:4px; margin-left:8px;">Login / Sign Up</a>
+                        </li>
+                        <?php endif; ?>
+                    </ul>
+                </div>
+            </nav>
     </div>
   </div>
 
@@ -4067,6 +4096,7 @@ if (!is_string($adminDirectoryJson)) {
          
         </section>
 
+        <?php if (in_array($admin['admin_role'] ?? 'all', ['editor_in_chief', 'all'], true)): ?>
         <section class="workspace-panel" id="admin-applications">
           <div class="workspace-panel-head">
             <div class="workspace-title-row">
@@ -4255,6 +4285,7 @@ if (!is_string($adminDirectoryJson)) {
             <?php endif; ?>
           </div>
         </section>
+        <?php endif; ?>
       </div>
     </div>
   </div>
@@ -4268,10 +4299,18 @@ if (!is_string($adminDirectoryJson)) {
         <input type="hidden" name="bulk_type" id="bulkTypeField" value="">
         <div id="bulkSubmissionInputs"></div>
       </form>
+      <?php if (in_array($admin['admin_role'] ?? 'all', ['editor_in_chief', 'all'], true)): ?>
       <button class="db-btn db-btn-success" onclick="triggerBulkAction('accept')"><i class="fa fa-check"></i> Accept</button>
+      <?php endif; ?>
+      <?php if (in_array($admin['admin_role'] ?? 'all', ['junior_editor', 'reviewer', 'editor_in_chief', 'all'], true)): ?>
       <button class="db-btn db-btn-warn" onclick="triggerBulkAction('needs_edits')"><i class="fa fa-pencil"></i> Request Edits</button>
+      <?php endif; ?>
+      <?php if (in_array($admin['admin_role'] ?? 'all', ['reviewer', 'editor_in_chief', 'all'], true)): ?>
       <button class="db-btn" onclick="triggerBulkAction('reject')"><i class="fa fa-times"></i> Reject</button>
+      <?php endif; ?>
+      <?php if (in_array($admin['admin_role'] ?? 'all', ['all'], true)): ?>
       <button class="db-btn db-btn-danger" onclick="triggerBulkAction('delete')"><i class="fa fa-trash"></i> Delete</button>
+      <?php endif; ?>
     </div>
   </div>
 
@@ -4345,11 +4384,16 @@ if (!is_string($adminDirectoryJson)) {
               <label class="db-label" for="fAuthor">Feedback to Author <span class="lnote">- sent to submitter upon decision</span></label>
               <textarea class="db-textarea" name="comment" id="fAuthor" placeholder="Describe the paper's strengths, specific weaknesses, and clear suggestions for improvement. Be constructive and precise." rows="5"></textarea>
               <div class="decision-btns" style="margin-top: 16px;">
+                <?php if (in_array($admin['admin_role'] ?? 'all', ['junior_editor', 'reviewer', 'editor_in_chief', 'all'], true)): ?>
                 <button class="db-btn db-btn-warn" type="button" onclick="triggerDecision('needs_edits')"><i class="fa fa-pencil"></i> Request Edit</button>
+                <?php endif; ?>
+                <?php if (in_array($admin['admin_role'] ?? 'all', ['reviewer', 'editor_in_chief', 'all'], true)): ?>
                 <button class="db-btn db-btn-danger" type="button" onclick="triggerDecision('rejected')"><i class="fa fa-times"></i> Reject</button>
+                <?php endif; ?>
               </div>
             </div>
 
+            <?php if (in_array($admin['admin_role'] ?? 'all', ['editor_in_chief', 'all'], true)): ?>
             <div class="drawer-section sub-modal-section" style="margin-top: 24px; padding: 0;">
               <div class="sub-modal-section-header">
                 <i class="fa fa-edit" style="color: #3b82f6;"></i> Edit Public Metadata & Files
@@ -4404,8 +4448,10 @@ if (!is_string($adminDirectoryJson)) {
                 </div>
               </div>
             </div>
+            <?php endif; ?>
           </form>
 
+          <?php if (in_array($admin['admin_role'] ?? 'all', ['all'], true)): ?>
           <form class="delete-paper-form" id="deletePaperForm" method="post">
             <input type="hidden" name="csrf_token" value="<?php echo e(csrf_token()); ?>">
             <input type="hidden" name="submission_id" id="deleteSubmissionIdField" value="">
@@ -4414,6 +4460,7 @@ if (!is_string($adminDirectoryJson)) {
               <button type="button" class="db-btn" style="color: #d32f2f; border-color: #d32f2f; background: transparent;" onclick="triggerDeletePaper()"><i class="fa fa-trash"></i> Delete Paper</button>
             </div>
           </form>
+          <?php endif; ?>
           
           <div class="drawer-section" style="margin-top: 24px;">
             <p class="dsec-label">Review Histories</p>
